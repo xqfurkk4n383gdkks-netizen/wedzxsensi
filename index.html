@@ -6,60 +6,89 @@
 <title>wedzxSensi</title>
 
 <style>
-body {
-  margin: 0;
-  background: black;
-  color: white;
-  font-family: Arial;
-  text-align: center;
-  overflow: hidden;
+body{
+    margin:0;
+    font-family:Arial;
+    background:#000;
+    color:#fff;
+    text-align:center;
+    overflow:hidden;
 }
 
-/* ARKA PLAN KIRMIZI NOKTALAR */
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
+/* 🔴 ANIMATED BACKGROUND DOTS */
+canvas{
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:-1;
 }
 
-h1 {
-  color: red;
-  margin-top: 20px;
+/* HEADER */
+h1{
+    color:red;
+    margin-top:40px;
+    font-size:40px;
 }
 
-.box {
-  background: rgba(20,20,20,0.9);
-  padding: 20px;
-  max-width: 400px;
-  margin: auto;
-  border-radius: 15px;
-  margin-top: 30px;
+p{
+    opacity:0.8;
 }
 
-input {
-  width: 90%;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 10px;
-  border: none;
+/* BOX */
+.box{
+    background:rgba(20,20,20,0.9);
+    width:90%;
+    max-width:420px;
+    margin:20px auto;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 0 25px red;
 }
 
-button {
-  width: 95%;
-  padding: 12px;
-  background: red;
-  border: none;
-  color: white;
-  font-weight: bold;
-  border-radius: 10px;
-  cursor: pointer;
+input{
+    width:90%;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    margin:10px 0;
+    font-size:16px;
 }
 
-.result {
-  margin-top: 15px;
-  color: lime;
-  font-size: 18px;
+/* FPS BUTTONS */
+.fps button{
+    width:30%;
+    padding:10px;
+    margin:5px;
+    border:none;
+    border-radius:10px;
+    background:#111;
+    color:white;
+    cursor:pointer;
+}
+
+.fps button.active{
+    background:red;
+}
+
+/* MAIN BUTTON */
+.mainbtn{
+    width:95%;
+    padding:15px;
+    background:red;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    color:white;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+/* RESULT */
+#sonuc{
+    margin-top:15px;
+    color:lime;
+    font-size:18px;
+    min-height:30px;
 }
 </style>
 </head>
@@ -73,44 +102,49 @@ button {
 
 <div class="box">
 
-<input type="text" id="device" placeholder="Cihaz modeli (örn: iPhone 13)">
-<br><br>
+<input id="cihaz" placeholder="İphone 17 Pro Max">
 
-<button onclick="setFPS(60)">60 FPS</button>
-<button onclick="setFPS(90)">90 FPS</button>
-<button onclick="setFPS(120)">120 FPS</button>
+<div class="fps">
+    <button onclick="fpsSec(60)">60 FPS</button>
+    <button onclick="fpsSec(90)">90 FPS</button>
+    <button onclick="fpsSec(120)">120 FPS</button>
+</div>
 
-<br><br>
+<button class="mainbtn" onclick="hesapla()">AI Hassasiyet Oluştur</button>
 
-<button onclick="generate()">AI Hassasiyet Oluştur</button>
-
-<div class="result" id="result"></div>
+<div id="sonuc"></div>
 
 </div>
 
 <script>
-let fps = 60;
+let secilenFPS = 60;
 
-function setFPS(x){
-  fps = x;
+function fpsSec(val){
+    secilenFPS = val;
+
+    document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
+    event.target.classList.add("active");
 }
 
-function generate(){
-  let base = fps === 60 ? 180 : fps === 90 ? 200 : 220;
+function hesapla(){
+    let cihaz = document.getElementById("cihaz").value || "Genel";
 
-  let genel = Math.floor(Math.random()*20) + base;
-  let red = Math.floor(Math.random()*20) + base - 10;
-  let scope = Math.floor(Math.random()*20) + base - 5;
+    // 🔥 PREMIUM AI LOGIC (fake but realistic scaling)
+    let base = secilenFPS === 60 ? 180 : secilenFPS === 90 ? 200 : 220;
 
-  if(genel > 200) genel = 200;
-  if(red > 200) red = 200;
-  if(scope > 200) scope = 200;
+    let genel = Math.min(200, base + Math.floor(Math.random()*10));
+    let red = Math.min(200, base + Math.floor(Math.random()*5));
+    let scope = Math.min(200, base + Math.floor(Math.random()*8));
 
-  document.getElementById("result").innerHTML =
-  "Genel: " + genel + "<br>Red Dot: " + red + "<br>Scope: " + scope;
+    document.getElementById("sonuc").innerHTML =
+    "Cihaz: " + cihaz + "<br>" +
+    "Genel: " + genel + "<br>" +
+    "Red Dot: " + red + "<br>" +
+    "Scope: " + scope;
 }
 
-/* 🔴 KIRMIZI NOKTA ANİMASYONU */
+
+/* 🔴 MOVING DOT BACKGROUND */
 const canvas = document.getElementById("bg");
 const ctx = canvas.getContext("2d");
 
@@ -120,32 +154,32 @@ canvas.height = window.innerHeight;
 let dots = [];
 
 for(let i=0;i<80;i++){
-  dots.push({
-    x: Math.random()*canvas.width,
-    y: Math.random()*canvas.height,
-    r: Math.random()*3,
-    dx: (Math.random()-0.5)*1,
-    dy: (Math.random()-0.5)*1
-  });
+    dots.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*3,
+        dx:(Math.random()-0.5)*1.5,
+        dy:(Math.random()-0.5)*1.5
+    });
 }
 
 function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  for(let d of dots){
-    ctx.beginPath();
-    ctx.fillStyle = "red";
-    ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
-    ctx.fill();
+    for(let d of dots){
+        ctx.beginPath();
+        ctx.fillStyle="red";
+        ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+        ctx.fill();
 
-    d.x += d.dx;
-    d.y += d.dy;
+        d.x += d.dx;
+        d.y += d.dy;
 
-    if(d.x < 0 || d.x > canvas.width) d.dx *= -1;
-    if(d.y < 0 || d.y > canvas.height) d.dy *= -1;
-  }
+        if(d.x<0 || d.x>canvas.width) d.dx*=-1;
+        if(d.y<0 || d.y>canvas.height) d.dy*=-1;
+    }
 
-  requestAnimationFrame(draw);
+    requestAnimationFrame(draw);
 }
 
 draw();
