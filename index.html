@@ -3,81 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>wedzXSensi</title>
+<title>wedzXsensi</title>
 
 <style>
 body{
-    background:#000;
-    color:#fff;
-    font-family:Arial,sans-serif;
-    text-align:center;
-    padding:30px;
+background:#080808;
+font-family:Arial,sans-serif;
+color:white;
+text-align:center;
+padding:20px;
 }
 
-h1{
-    color:red;
+.logo{
+font-size:38px;
+font-weight:bold;
+color:#ff1a1a;
+margin-top:20px;
 }
 
-.box{
-    background:#111;
-    padding:20px;
-    border-radius:15px;
-    max-width:400px;
-    margin:auto;
+.alt{
+color:#bbb;
+margin-bottom:25px;
+}
+
+.kutu{
+background:#111;
+border:2px solid #ff1a1a;
+border-radius:20px;
+padding:20px;
+max-width:420px;
+margin:auto;
+box-shadow:0 0 20px red;
 }
 
 input{
-    width:90%;
-    padding:10px;
-    margin:10px 0;
-    border:none;
-    border-radius:8px;
+width:90%;
+padding:15px;
+border:none;
+border-radius:12px;
+background:#222;
+color:white;
+font-size:16px;
+margin-bottom:15px;
 }
 
 button{
-    background:red;
-    color:white;
-    border:none;
-    padding:12px 25px;
-    border-radius:8px;
-    cursor:pointer;
+width:95%;
+padding:15px;
+background:#ff1a1a;
+color:white;
+border:none;
+border-radius:12px;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
 }
 
 #sonuc{
-    margin-top:20px;
-    font-size:22px;
-    color:lime;
+margin-top:20px;
+text-align:left;
+background:#1a1a1a;
+padding:15px;
+border-radius:12px;
+display:none;
 }
 </style>
 </head>
 
 <body>
 
-<h1>wedzXSensi</h1>
+<div class="logo">wedzXsensi</div>
+<div class="alt">Premium Free Fire Hassasiyet Motoru</div>
 
-<div class="box">
-<h3>Free Fire Hassasiyet Oluşturucu</h3>
+<div class="kutu">
 
-<input type="text" id="cihaz" placeholder="Cihazını Yaz">
+<input type="text" id="cihaz" placeholder="Cihaz Modeli">
 
-<button onclick="hesapla()">Hesapla</button>
+<button onclick="hesapla()">
+AI HASSASİYET OLUŞTUR
+</button>
 
 <div id="sonuc"></div>
+
 </div>
 
 <script>
+
 function hesapla(){
-let genel=Math.floor(Math.random()*20)+80;
-let nokta=Math.floor(Math.random()*20)+70;
-let durbun=Math.floor(Math.random()*20)+60;
-let awm=Math.floor(Math.random()*20)+40;
+
+let cihaz =
+document.getElementById("cihaz").value.toLowerCase();
+
+let genel=200;
+let nokta=200;
+let iki=200;
+let dort=200;
+let awm=200;
+let bakis=200;
+
+if(cihaz.includes("iphone")){
+genel=200;
+nokta=200;
+iki=195;
+dort=190;
+awm=185;
+bakis=200;
+}
+
+else if(
+cihaz.includes("redmi") ||
+cihaz.includes("xiaomi")
+){
+genel=198;
+nokta=200;
+iki=194;
+dort=188;
+awm=180;
+bakis=200;
+}
+
+else if(
+cihaz.includes("samsung")
+){
+genel=197;
+nokta=200;
+iki=193;
+dort=187;
+awm=178;
+bakis=200;
+}
+
+document.getElementById("sonuc").style.display="block";
 
 document.getElementById("sonuc").innerHTML=
-"Genel: "+genel+
-"<br>Nokta: "+nokta+
-"<br>2x: "+durbun+
-"<br>AWM: "+awm;
+`
+<h2>Premium Hassasiyet</h2>
+
+<p>🎯 Genel: ${genel}</p>
+<p>🔴 Kırmızı Nokta: ${nokta}</p>
+<p>🔭 2x Dürbün: ${iki}</p>
+<p>🎯 4x Dürbün: ${dort}</p>
+<p>💥 AWM: ${awm}</p>
+<p>👁 Serbest Bakış: ${bakis}</p>
+
+`;
 }
+
 </script>
 
 </body>
