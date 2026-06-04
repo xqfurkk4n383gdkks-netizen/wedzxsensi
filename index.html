@@ -8,191 +8,288 @@
 <style>
 body{
 margin:0;
-font-family:Arial;
 background:#050505;
+font-family:Arial;
 color:white;
 overflow-x:hidden;
 }
 
-/* ARKA PLAN PARTİKÜL */
-.particle{
+/* ARKA PLAN */
+.bg{
 position:fixed;
+width:100%;
+height:100%;
+z-index:-1;
+overflow:hidden;
+}
+
+.dot{
+position:absolute;
 width:6px;
 height:6px;
 background:red;
 border-radius:50%;
-opacity:0.7;
-animation: float 10s infinite linear;
+opacity:.6;
+animation:float 8s linear infinite;
 }
 
 @keyframes float{
-0%{transform:translateY(100vh);opacity:0;}
-50%{opacity:1;}
-100%{transform:translateY(-10vh);opacity:0;}
+0%{transform:translateY(100vh);opacity:0}
+30%{opacity:1}
+100%{transform:translateY(-10vh);opacity:0}
 }
 
-/* ORTA KUTU */
-.container{
+/* LOGO */
+.header{
+text-align:center;
+margin-top:30px;
+}
+
+.logo{
+width:60px;
+height:60px;
+margin:auto;
+background:red;
+border-radius:15px;
+box-shadow:0 0 25px red;
+}
+
+h1{
+margin:10px 0 5px;
+letter-spacing:1px;
+}
+
+.sub{
+color:#aaa;
+font-size:12px;
+}
+
+/* ANA KUTU */
+.card{
 width:90%;
 max-width:420px;
-margin:80px auto;
-background:#0d0d0d;
+margin:40px auto;
+background:rgba(20,20,20,.9);
 padding:20px;
-border-radius:15px;
-box-shadow:0 0 20px red;
-text-align:center;
+border-radius:18px;
+box-shadow:0 0 30px rgba(255,0,0,.3);
+backdrop-filter: blur(8px);
 }
 
-h1{color:red;}
-
-/* INPUT */
 input{
-width:90%;
-padding:12px;
-border-radius:10px;
-border:none;
-background:#222;
-color:white;
-margin-bottom:10px;
-}
-
-/* BUTTON */
-button{
 width:100%;
 padding:12px;
-margin-top:10px;
-border:none;
 border-radius:10px;
+border:none;
+background:#111;
+color:white;
+margin-bottom:15px;
+outline:none;
+}
+
+/* FPS BUTONLAR */
+.row{
+display:flex;
+gap:10px;
+}
+
+.fps{
+flex:1;
+padding:10px;
+border-radius:10px;
+background:#111;
+border:1px solid #222;
+color:white;
+cursor:pointer;
+}
+
+.fps.active{
 background:red;
+box-shadow:0 0 15px red;
+}
+
+/* BUTON */
+.btn{
+width:100%;
+margin-top:15px;
+padding:12px;
+border:none;
+border-radius:12px;
+background:linear-gradient(90deg,#ff0000,#aa0000);
 color:white;
 font-weight:bold;
 cursor:pointer;
 }
 
-/* FPS BUTONLAR */
-.fps button{
-width:30%;
-margin:5px;
-background:#111;
-border:1px solid red;
-}
-
-/* RESULT */
+/* SONUÇ */
 .result{
 display:none;
 width:90%;
-max-width:500px;
-margin:20px auto;
-background:#0d0d0d;
+max-width:520px;
+margin:30px auto;
+}
+
+.panel{
+background:rgba(20,20,20,.95);
 padding:20px;
-border-radius:15px;
-box-shadow:0 0 20px red;
+border-radius:18px;
+box-shadow:0 0 30px rgba(255,0,0,.25);
+}
+
+.top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+}
+
+.copy{
+background:#111;
+border:1px solid #333;
+padding:8px 12px;
+border-radius:10px;
+color:white;
+cursor:pointer;
+}
+
+/* BAR */
+.item{
+margin:12px 0;
 }
 
 .bar{
-height:10px;
+height:8px;
 background:#222;
 border-radius:10px;
-margin:5px 0 15px;
-position:relative;
+overflow:hidden;
 }
 
 .fill{
-height:10px;
+height:8px;
 background:red;
-border-radius:10px;
+box-shadow:0 0 10px red;
+width:0%;
+transition:1s;
 }
 
-/* COPY */
-.copy{
-background:#222;
-margin-top:10px;
+/* SERVER */
+.server{
+margin-top:15px;
+text-align:center;
+color:#aaa;
+font-size:13px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="particles"></div>
+<div class="bg" id="bg"></div>
 
-<!-- ANA SAYFA -->
-<div class="container" id="home">
+<div class="header">
+<div class="logo"></div>
 <h1>wedzxsensi</h1>
-
-<input id="device" placeholder="Cihaz modeli (iPhone 13 vs)">
-
-<div class="fps">
-<button onclick="setFPS(60)">60 FPS</button>
-<button onclick="setFPS(90)">90 FPS</button>
-<button onclick="setFPS(120)">120 FPS</button>
+<div class="sub">FREE FIRE • AI HASSASİYET MOTORU</div>
 </div>
 
-<button onclick="generate()">AI Hassasiyet Oluştur</button>
+<!-- ANA SAYFA -->
+<div class="card" id="home">
+<input id="device" placeholder="Cihaz modeli (örn: iPhone 17 Pro Max)">
+
+<div class="row">
+<button class="fps active" onclick="setFPS(this,60)">60 FPS</button>
+<button class="fps" onclick="setFPS(this,90)">90 FPS</button>
+<button class="fps" onclick="setFPS(this,120)">120 FPS</button>
+</div>
+
+<button class="btn" onclick="generate()">AI HASSASİYET OLUŞTUR</button>
 </div>
 
 <!-- SONUÇ -->
 <div class="result" id="result">
-<h2>YAPAY ZEKA SONUCU</h2>
-<p id="info"></p>
 
-<div id="bars"></div>
+<div class="panel">
 
-<button class="copy" onclick="copyText()">KOPYALA</button>
+<div class="top">
+<div>
+<strong>YAPAY ZEKA SONUCU</strong><br>
+<small id="info" style="color:#aaa"></small>
+</div>
+<button class="copy" onclick="copy()">KOPYALA</button>
+</div>
+
+<div id="list"></div>
+
+<div class="server">Sunucular başlatılıyor...</div>
+
+</div>
 </div>
 
 <script>
-let fps = 60;
 
-function setFPS(val){
-fps = val;
+let fps=60;
+
+function setFPS(el,val){
+fps=val;
+document.querySelectorAll(".fps").forEach(b=>b.classList.remove("active"));
+el.classList.add("active");
 }
 
 function generate(){
 document.getElementById("home").style.display="none";
 document.getElementById("result").style.display="block";
 
-let device = document.getElementById("device").value || "Bilinmeyen Cihaz";
+let device=document.getElementById("device").value || "Bilinmeyen Cihaz";
 
-document.getElementById("info").innerText = device + " • " + fps + " FPS";
+document.getElementById("info").innerText=device+" • "+fps+" FPS";
 
-let data = {
-Genel: random(),
-"Kırmızı Nokta": random(),
-"2x Dürbün": random(),
-"4x Dürbün": random(),
-"Tüfek Dürbünü": random(),
-"Serbest Bakış": 200
+let data={
+"Genel":185,
+"Kırmızı Nokta":180,
+"2x Dürbün":165,
+"4x Dürbün":145,
+"Tüfek Dürbünü":125,
+"Serbest Bakış":200
 };
 
-let bars = document.getElementById("bars");
-bars.innerHTML="";
+let html="";
 
-for(let key in data){
-bars.innerHTML += `
-<div>${key} : ${data[key]}</div>
-<div class="bar"><div class="fill" style="width:${data[key]/2}%"></div></div>
+for(let k in data){
+html+=`
+<div class="item">
+<div>${k} <span style="float:right">${data[k]}</span></div>
+<div class="bar"><div class="fill" style="width:${data[k]/2}%"></div></div>
+</div>
 `;
 }
+
+document.getElementById("list").innerHTML=html;
+
+/* animasyon dolum */
+setTimeout(()=>{
+document.querySelectorAll(".fill").forEach(f=>{
+f.style.width=f.style.width;
+});
+},100);
 }
 
-function random(){
-return Math.floor(Math.random()*80)+120;
+function copy(){
+navigator.clipboard.writeText(document.getElementById("info").innerText);
+alert("Kopyalandı");
 }
 
-function copyText(){
-let text = document.getElementById("info").innerText;
-navigator.clipboard.writeText(text);
-alert("Kopyalandı!");
+/* kırmızı partikül */
+const bg=document.getElementById("bg");
+
+for(let i=0;i<60;i++){
+let d=document.createElement("div");
+d.className="dot";
+d.style.left=Math.random()*100+"vw";
+d.style.animationDuration=(5+Math.random()*10)+"s";
+d.style.top=Math.random()*100+"vh";
+bg.appendChild(d);
 }
 
-/* PARTİKÜL */
-for(let i=0;i<40;i++){
-let p=document.createElement("div");
-p.className="particle";
-p.style.left=Math.random()*100+"vw";
-p.style.animationDuration=(5+Math.random()*10)+"s";
-document.getElementById("particles").appendChild(p);
-}
 </script>
 
 </body>
