@@ -3,92 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>wedzxSensi</title>
+<title>wedzxsensi</title>
 
 <style>
 body{
-margin:0;
-font-family:Arial;
-background:#000;
-color:white;
-text-align:center;
-overflow:hidden;
+    margin:0;
+    font-family:Arial;
+    background:#050505;
+    color:white;
+    text-align:center;
+    overflow-x:hidden;
 }
 
-canvas{
-position:fixed;
-top:0;
-left:0;
-z-index:-1;
+/* ARKA PLAN NOKTALAR */
+.particles{
+    position:fixed;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    z-index:-1;
+}
+.particles span{
+    position:absolute;
+    width:6px;
+    height:6px;
+    background:red;
+    border-radius:50%;
+    animation:move 10s linear infinite;
+    opacity:0.6;
+}
+@keyframes move{
+    from{transform:translateY(0);}
+    to{transform:translateY(-1000px);}
 }
 
+/* LOGO */
 h1{
-color:red;
-margin-top:40px;
-font-size:40px;
+    color:red;
+    margin-top:20px;
 }
 
+/* KUTU */
 .box{
-background:#111;
-width:90%;
-max-width:420px;
-margin:20px auto;
-padding:20px;
-border-radius:15px;
-box-shadow:0 0 20px red;
+    background:#111;
+    max-width:420px;
+    margin:20px auto;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 0 20px red;
 }
 
+/* INPUT */
 input{
-width:90%;
-padding:12px;
-border-radius:10px;
-border:none;
-margin:10px 0;
+    width:90%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    margin-bottom:10px;
 }
 
+/* FPS BUTTON */
 .fps button{
-width:30%;
-padding:10px;
-margin:5px;
-border:none;
-border-radius:10px;
-background:#222;
-color:white;
-cursor:pointer;
+    margin:5px;
+    padding:10px 20px;
+    border:none;
+    border-radius:10px;
+    background:#222;
+    color:white;
 }
-
 .fps button.active{
-background:red;
+    background:red;
 }
 
+/* ANA BUTON */
 button.main{
-width:95%;
-padding:15px;
-background:red;
-border:none;
-border-radius:12px;
-color:white;
-font-size:18px;
-cursor:pointer;
+    width:95%;
+    padding:15px;
+    margin-top:10px;
+    background:red;
+    border:none;
+    color:white;
+    font-size:16px;
+    border-radius:12px;
 }
 
-#sonuc{
-margin-top:15px;
-color:lime;
-text-align:left;
+/* SONUÇ */
+.result{
+    display:none;
+    margin-top:20px;
+    text-align:left;
+}
+
+.bar{
+    background:#222;
+    border-radius:10px;
+    overflow:hidden;
+    margin:5px 0;
+}
+.fill{
+    height:10px;
+    background:red;
+}
+.small{
+    font-size:12px;
+    opacity:0.7;
 }
 </style>
 </head>
 
 <body>
 
-<canvas id="bg"></canvas>
+<div class="particles" id="p"></div>
 
-<h1>wedzxSensi</h1>
+<h1>wedzxsensi</h1>
+<div class="small">FREE FIRE AI HASSASİYET MOTORU</div>
 
 <div class="box">
 
-<input id="cihaz" placeholder="Cihaz Modeli">
+<input id="device" placeholder="Cihaz modelini yaz (iPhone, Redmi...)">
 
 <div class="fps">
 <button onclick="setFPS(60)">60 FPS</button>
@@ -96,121 +129,84 @@ text-align:left;
 <button onclick="setFPS(120)">120 FPS</button>
 </div>
 
-<button class="main" onclick="hesapla()">AI Hassasiyet Oluştur</button>
+<button class="main" onclick="generate()">AI Hassasiyet Oluştur</button>
 
-<div id="sonuc"></div>
+<div class="result" id="result">
+
+<h3>YAPAY ZEKA SONUCU</h3>
+
+<div>Genel</div>
+<div class="bar"><div class="fill" id="g"></div></div>
+
+<div>Kırmızı Nokta</div>
+<div class="bar"><div class="fill" id="r"></div></div>
+
+<div>2x Dürbün</div>
+<div class="bar"><div class="fill" id="x2"></div></div>
+
+<div>4x Dürbün</div>
+<div class="bar"><div class="fill" id="x4"></div></div>
+
+<div>Tüfek Dürbünü</div>
+<div class="bar"><div class="fill" id="sn"></div></div>
+
+<div>Serbest Bakış</div>
+<div class="bar"><div class="fill" id="free"></div></div>
+
+</div>
 
 </div>
 
 <script>
-
 let fps = 60;
 
 function setFPS(v){
 fps = v;
 }
 
-// 🔥 CİHAZ SİSTEMİ
-function cihazAyar(cihaz){
+function generate(){
 
-cihaz = cihaz.toLowerCase();
+let base = fps === 60 ? 180 : fps === 90 ? 195 : 200;
 
-if(cihaz.includes("iphone")){
-return {genel:190, red:195};
+let device = document.getElementById("device").value.toLowerCase();
+
+if(device.includes("iphone")){
+base += 5;
+}
+if(device.includes("redmi")){
+base -= 3;
 }
 
-if(cihaz.includes("redmi")){
-return {genel:180, red:185};
+/* değerler */
+let g = base;
+let r = base - 5;
+let x2 = base - 15;
+let x4 = base - 35;
+let sn = base - 55;
+let free = 200;
+
+/* max 200 */
+[g,r,x2,x4,sn,free] = [g,r,x2,x4,sn,free].map(x=>Math.max(0,Math.min(200,x)));
+
+document.getElementById("result").style.display="block";
+
+document.getElementById("g").style.width=g+"%";
+document.getElementById("r").style.width=r+"%";
+document.getElementById("x2").style.width=x2+"%";
+document.getElementById("x4").style.width=x4+"%";
+document.getElementById("sn").style.width=sn+"%";
+document.getElementById("free").style.width=free+"%";
 }
 
-if(cihaz.includes("samsung")){
-return {genel:185, red:190};
+/* kırmızı partiküller */
+let p=document.getElementById("p");
+for(let i=0;i<40;i++){
+let s=document.createElement("span");
+s.style.left=Math.random()*100+"%";
+s.style.top=Math.random()*100+"%";
+s.style.animationDuration=(5+Math.random()*10)+"s";
+p.appendChild(s);
 }
-
-return {genel:175, red:180};
-}
-
-// 🔥 FULL HASSASİYET
-function hesapla(){
-
-let cihaz = document.getElementById("cihaz").value || "Genel";
-
-let base = cihazAyar(cihaz);
-
-let genel = base.genel;
-let red = base.red;
-
-let x2 = genel - 5;
-let x4 = genel - 10;
-let rifle = genel - 3;
-let bakis = 200;
-
-// FPS etkisi
-if(fps === 90){
-genel += 5; red += 5; x2 += 5; x4 += 5; rifle += 5;
-}
-
-if(fps === 120){
-genel += 10; red += 10; x2 += 10; x4 += 10; rifle += 10;
-}
-
-// MAX 200
-genel = Math.min(200, genel);
-red = Math.min(200, red);
-x2 = Math.min(200, x2);
-x4 = Math.min(200, x4);
-rifle = Math.min(200, rifle);
-
-document.getElementById("sonuc").innerHTML =
-"🎯 Genel: " + genel + "<br>" +
-"🔴 Kırmızı Nokta: " + red + "<br>" +
-"🔭 2x: " + x2 + "<br>" +
-"🔭 4x: " + x4 + "<br>" +
-"🔫 Tüfek Dürbünü: " + rifle + "<br>" +
-"👁 Serbest Bakış: " + bakis;
-
-}
-
-// 🔴 ARKA PLAN ANİMASYON
-const canvas = document.getElementById("bg");
-const ctx = canvas.getContext("2d");
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let dots = [];
-
-for(let i=0;i<70;i++){
-dots.push({
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-r:Math.random()*3,
-dx:(Math.random()-0.5)*2,
-dy:(Math.random()-0.5)*2
-});
-}
-
-function draw(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-for(let d of dots){
-ctx.beginPath();
-ctx.fillStyle="red";
-ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
-ctx.fill();
-
-d.x += d.dx;
-d.y += d.dy;
-
-if(d.x<0||d.x>canvas.width) d.dx*=-1;
-if(d.y<0||d.y>canvas.height) d.dy*=-1;
-}
-
-requestAnimationFrame(draw);
-}
-
-draw();
-
 </script>
 
 </body>
