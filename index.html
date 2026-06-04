@@ -3,154 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>wedzXsensi</title>
+<title>wedzxSensi</title>
 
 <style>
-body{
-background:#070707;
-color:white;
-font-family:Arial;
-text-align:center;
-padding:20px;
+body {
+  margin: 0;
+  background: black;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+  overflow: hidden;
 }
 
-.logo{
-font-size:40px;
-font-weight:bold;
-color:#ff0000;
-margin-top:15px;
+/* ARKA PLAN KIRMIZI NOKTALAR */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
 }
 
-.alt{
-color:#aaa;
-margin-bottom:20px;
+h1 {
+  color: red;
+  margin-top: 20px;
 }
 
-.kutu{
-background:#111;
-padding:20px;
-border-radius:18px;
-max-width:420px;
-margin:auto;
-box-shadow:0 0 20px red;
+.box {
+  background: rgba(20,20,20,0.9);
+  padding: 20px;
+  max-width: 400px;
+  margin: auto;
+  border-radius: 15px;
+  margin-top: 30px;
 }
 
-input{
-width:90%;
-padding:14px;
-border-radius:12px;
-border:none;
-background:#222;
-color:white;
-margin-bottom:15px;
-font-size:16px;
+input {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: none;
 }
 
-button{
-width:95%;
-padding:15px;
-border:none;
-border-radius:12px;
-background:red;
-color:white;
-font-size:18px;
-font-weight:bold;
-cursor:pointer;
+button {
+  width: 95%;
+  padding: 12px;
+  background: red;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
-.fps button{
-width:30%;
-margin:5px;
-padding:10px;
-font-size:14px;
-background:#222;
-}
-
-.fps .active{
-background:red;
-}
-
-#sonuc{
-margin-top:20px;
-text-align:left;
-background:#1a1a1a;
-padding:15px;
-border-radius:12px;
-display:none;
+.result {
+  margin-top: 15px;
+  color: lime;
+  font-size: 18px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="logo">wedzXsensi</div>
-<div class="alt">FREE FIRE • AI HASSASİYET MOTORU</div>
+<canvas id="bg"></canvas>
 
-<div class="kutu">
+<h1>wedzxSensi</h1>
+<p>Free Fire AI Hassasiyet Motoru</p>
 
-<input type="text" id="cihaz" placeholder="Cihaz Modeli">
+<div class="box">
 
-<div class="fps">
-<button onclick="fpsSec(60,this)" class="active">60 FPS</button>
-<button onclick="fpsSec(90,this)">90 FPS</button>
-<button onclick="fpsSec(120,this)">120 FPS</button>
-</div>
+<input type="text" id="device" placeholder="Cihaz modeli (örn: iPhone 13)">
+<br><br>
 
-<button onclick="hesapla()">AI HASSASİYET OLUŞTUR</button>
+<button onclick="setFPS(60)">60 FPS</button>
+<button onclick="setFPS(90)">90 FPS</button>
+<button onclick="setFPS(120)">120 FPS</button>
 
-<div id="sonuc"></div>
+<br><br>
+
+<button onclick="generate()">AI Hassasiyet Oluştur</button>
+
+<div class="result" id="result"></div>
 
 </div>
 
 <script>
-
 let fps = 60;
 
-function fpsSec(x,btn){
-fps = x;
-document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
-btn.classList.add("active");
+function setFPS(x){
+  fps = x;
 }
 
-function hesapla(){
+function generate(){
+  let base = fps === 60 ? 180 : fps === 90 ? 200 : 220;
 
-let cihaz = document.getElementById("cihaz").value.toLowerCase();
+  let genel = Math.floor(Math.random()*20) + base;
+  let red = Math.floor(Math.random()*20) + base - 10;
+  let scope = Math.floor(Math.random()*20) + base - 5;
 
-let base = 180;
+  if(genel > 200) genel = 200;
+  if(red > 200) red = 200;
+  if(scope > 200) scope = 200;
 
-// cihaz boost sistemi
-if(cihaz.includes("iphone")) base = 200;
-else if(cihaz.includes("redmi")) base = 195;
-else if(cihaz.includes("xiaomi")) base = 193;
-else if(cihaz.includes("samsung")) base = 190;
-else if(cihaz.length < 3) base = 170;
-
-// FPS etkisi
-let fpsBoost = fps === 60 ? 20 : fps === 90 ? 10 : 0;
-
-let genel = Math.min(200, base + fpsBoost);
-let redDot = Math.min(200, genel - 2);
-let x2 = Math.min(200, genel - 6);
-let x4 = Math.min(200, genel - 10);
-let awm = Math.min(200, genel - 15);
-let bakis = 200;
-
-document.getElementById("sonuc").style.display="block";
-
-document.getElementById("sonuc").innerHTML=`
-<h2>🔥 Premium Hassasiyet</h2>
-<p>📱 Cihaz: ${cihaz || "Bilinmiyor"}</p>
-<p>⚡ FPS: ${fps}</p>
-<hr>
-<p>🎯 Genel: ${genel}</p>
-<p>🔴 Kırmızı Nokta: ${redDot}</p>
-<p>🔭 2x: ${x2}</p>
-<p>🎯 4x: ${x4}</p>
-<p>💥 AWM: ${awm}</p>
-<p>👁 Serbest: ${bakis}</p>
-`;
+  document.getElementById("result").innerHTML =
+  "Genel: " + genel + "<br>Red Dot: " + red + "<br>Scope: " + scope;
 }
 
+/* 🔴 KIRMIZI NOKTA ANİMASYONU */
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let dots = [];
+
+for(let i=0;i<80;i++){
+  dots.push({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    r: Math.random()*3,
+    dx: (Math.random()-0.5)*1,
+    dy: (Math.random()-0.5)*1
+  });
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  for(let d of dots){
+    ctx.beginPath();
+    ctx.fillStyle = "red";
+    ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+    ctx.fill();
+
+    d.x += d.dx;
+    d.y += d.dy;
+
+    if(d.x < 0 || d.x > canvas.width) d.dx *= -1;
+    if(d.y < 0 || d.y > canvas.height) d.dy *= -1;
+  }
+
+  requestAnimationFrame(draw);
+}
+
+draw();
 </script>
 
 </body>
