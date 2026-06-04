@@ -7,121 +7,119 @@
 
 <style>
 body{
-    margin:0;
-    font-family:Arial;
-    background:#050505;
-    color:white;
-    text-align:center;
-    overflow-x:hidden;
+margin:0;
+font-family:Arial;
+background:#050505;
+color:white;
+overflow-x:hidden;
 }
 
-/* ARKA PLAN NOKTALAR */
-.particles{
-    position:fixed;
-    width:100%;
-    height:100%;
-    top:0;
-    left:0;
-    z-index:-1;
-}
-.particles span{
-    position:absolute;
-    width:6px;
-    height:6px;
-    background:red;
-    border-radius:50%;
-    animation:move 10s linear infinite;
-    opacity:0.6;
-}
-@keyframes move{
-    from{transform:translateY(0);}
-    to{transform:translateY(-1000px);}
+/* ARKA PLAN PARTİKÜL */
+.particle{
+position:fixed;
+width:6px;
+height:6px;
+background:red;
+border-radius:50%;
+opacity:0.7;
+animation: float 10s infinite linear;
 }
 
-/* LOGO */
-h1{
-    color:red;
-    margin-top:20px;
+@keyframes float{
+0%{transform:translateY(100vh);opacity:0;}
+50%{opacity:1;}
+100%{transform:translateY(-10vh);opacity:0;}
 }
 
-/* KUTU */
-.box{
-    background:#111;
-    max-width:420px;
-    margin:20px auto;
-    padding:20px;
-    border-radius:20px;
-    box-shadow:0 0 20px red;
+/* ORTA KUTU */
+.container{
+width:90%;
+max-width:420px;
+margin:80px auto;
+background:#0d0d0d;
+padding:20px;
+border-radius:15px;
+box-shadow:0 0 20px red;
+text-align:center;
 }
+
+h1{color:red;}
 
 /* INPUT */
 input{
-    width:90%;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    margin-bottom:10px;
+width:90%;
+padding:12px;
+border-radius:10px;
+border:none;
+background:#222;
+color:white;
+margin-bottom:10px;
 }
 
-/* FPS BUTTON */
+/* BUTTON */
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+background:red;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+/* FPS BUTONLAR */
 .fps button{
-    margin:5px;
-    padding:10px 20px;
-    border:none;
-    border-radius:10px;
-    background:#222;
-    color:white;
-}
-.fps button.active{
-    background:red;
+width:30%;
+margin:5px;
+background:#111;
+border:1px solid red;
 }
 
-/* ANA BUTON */
-button.main{
-    width:95%;
-    padding:15px;
-    margin-top:10px;
-    background:red;
-    border:none;
-    color:white;
-    font-size:16px;
-    border-radius:12px;
-}
-
-/* SONUÇ */
+/* RESULT */
 .result{
-    display:none;
-    margin-top:20px;
-    text-align:left;
+display:none;
+width:90%;
+max-width:500px;
+margin:20px auto;
+background:#0d0d0d;
+padding:20px;
+border-radius:15px;
+box-shadow:0 0 20px red;
 }
 
 .bar{
-    background:#222;
-    border-radius:10px;
-    overflow:hidden;
-    margin:5px 0;
+height:10px;
+background:#222;
+border-radius:10px;
+margin:5px 0 15px;
+position:relative;
 }
+
 .fill{
-    height:10px;
-    background:red;
+height:10px;
+background:red;
+border-radius:10px;
 }
-.small{
-    font-size:12px;
-    opacity:0.7;
+
+/* COPY */
+.copy{
+background:#222;
+margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="particles" id="p"></div>
+<div id="particles"></div>
 
+<!-- ANA SAYFA -->
+<div class="container" id="home">
 <h1>wedzxsensi</h1>
-<div class="small">FREE FIRE AI HASSASİYET MOTORU</div>
 
-<div class="box">
-
-<input id="device" placeholder="Cihaz modelini yaz (iPhone, Redmi...)">
+<input id="device" placeholder="Cihaz modeli (iPhone 13 vs)">
 
 <div class="fps">
 <button onclick="setFPS(60)">60 FPS</button>
@@ -129,83 +127,71 @@ button.main{
 <button onclick="setFPS(120)">120 FPS</button>
 </div>
 
-<button class="main" onclick="generate()">AI Hassasiyet Oluştur</button>
-
-<div class="result" id="result">
-
-<h3>YAPAY ZEKA SONUCU</h3>
-
-<div>Genel</div>
-<div class="bar"><div class="fill" id="g"></div></div>
-
-<div>Kırmızı Nokta</div>
-<div class="bar"><div class="fill" id="r"></div></div>
-
-<div>2x Dürbün</div>
-<div class="bar"><div class="fill" id="x2"></div></div>
-
-<div>4x Dürbün</div>
-<div class="bar"><div class="fill" id="x4"></div></div>
-
-<div>Tüfek Dürbünü</div>
-<div class="bar"><div class="fill" id="sn"></div></div>
-
-<div>Serbest Bakış</div>
-<div class="bar"><div class="fill" id="free"></div></div>
-
+<button onclick="generate()">AI Hassasiyet Oluştur</button>
 </div>
 
+<!-- SONUÇ -->
+<div class="result" id="result">
+<h2>YAPAY ZEKA SONUCU</h2>
+<p id="info"></p>
+
+<div id="bars"></div>
+
+<button class="copy" onclick="copyText()">KOPYALA</button>
 </div>
 
 <script>
 let fps = 60;
 
-function setFPS(v){
-fps = v;
+function setFPS(val){
+fps = val;
 }
 
 function generate(){
-
-let base = fps === 60 ? 180 : fps === 90 ? 195 : 200;
-
-let device = document.getElementById("device").value.toLowerCase();
-
-if(device.includes("iphone")){
-base += 5;
-}
-if(device.includes("redmi")){
-base -= 3;
-}
-
-/* değerler */
-let g = base;
-let r = base - 5;
-let x2 = base - 15;
-let x4 = base - 35;
-let sn = base - 55;
-let free = 200;
-
-/* max 200 */
-[g,r,x2,x4,sn,free] = [g,r,x2,x4,sn,free].map(x=>Math.max(0,Math.min(200,x)));
-
+document.getElementById("home").style.display="none";
 document.getElementById("result").style.display="block";
 
-document.getElementById("g").style.width=g+"%";
-document.getElementById("r").style.width=r+"%";
-document.getElementById("x2").style.width=x2+"%";
-document.getElementById("x4").style.width=x4+"%";
-document.getElementById("sn").style.width=sn+"%";
-document.getElementById("free").style.width=free+"%";
+let device = document.getElementById("device").value || "Bilinmeyen Cihaz";
+
+document.getElementById("info").innerText = device + " • " + fps + " FPS";
+
+let data = {
+Genel: random(),
+"Kırmızı Nokta": random(),
+"2x Dürbün": random(),
+"4x Dürbün": random(),
+"Tüfek Dürbünü": random(),
+"Serbest Bakış": 200
+};
+
+let bars = document.getElementById("bars");
+bars.innerHTML="";
+
+for(let key in data){
+bars.innerHTML += `
+<div>${key} : ${data[key]}</div>
+<div class="bar"><div class="fill" style="width:${data[key]/2}%"></div></div>
+`;
+}
 }
 
-/* kırmızı partiküller */
-let p=document.getElementById("p");
+function random(){
+return Math.floor(Math.random()*80)+120;
+}
+
+function copyText(){
+let text = document.getElementById("info").innerText;
+navigator.clipboard.writeText(text);
+alert("Kopyalandı!");
+}
+
+/* PARTİKÜL */
 for(let i=0;i<40;i++){
-let s=document.createElement("span");
-s.style.left=Math.random()*100+"%";
-s.style.top=Math.random()*100+"%";
-s.style.animationDuration=(5+Math.random()*10)+"s";
-p.appendChild(s);
+let p=document.createElement("div");
+p.className="particle";
+p.style.left=Math.random()*100+"vw";
+p.style.animationDuration=(5+Math.random()*10)+"s";
+document.getElementById("particles").appendChild(p);
 }
 </script>
 
