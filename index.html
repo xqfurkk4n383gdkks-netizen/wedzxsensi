@@ -7,74 +7,75 @@
 
 <style>
 body{
-    margin:0;
-    font-family:Arial;
-    background:#000;
-    color:#fff;
-    text-align:center;
-    overflow:hidden;
+margin:0;
+font-family:Arial;
+background:#000;
+color:white;
+text-align:center;
+overflow:hidden;
 }
 
 canvas{
-    position:fixed;
-    top:0;
-    left:0;
-    z-index:-1;
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
 }
 
 h1{
-    color:red;
-    margin-top:40px;
-    font-size:40px;
+color:red;
+margin-top:40px;
+font-size:40px;
 }
 
 .box{
-    background:#111;
-    width:90%;
-    max-width:420px;
-    margin:20px auto;
-    padding:20px;
-    border-radius:15px;
-    box-shadow:0 0 20px red;
+background:#111;
+width:90%;
+max-width:420px;
+margin:20px auto;
+padding:20px;
+border-radius:15px;
+box-shadow:0 0 20px red;
 }
 
 input{
-    width:90%;
-    padding:12px;
-    border-radius:10px;
-    border:none;
-    margin:10px 0;
+width:90%;
+padding:12px;
+border-radius:10px;
+border:none;
+margin:10px 0;
 }
 
 .fps button{
-    width:30%;
-    padding:10px;
-    margin:5px;
-    border:none;
-    border-radius:10px;
-    background:#222;
-    color:white;
-    cursor:pointer;
+width:30%;
+padding:10px;
+margin:5px;
+border:none;
+border-radius:10px;
+background:#222;
+color:white;
+cursor:pointer;
 }
 
 .fps button.active{
-    background:red;
+background:red;
 }
 
 button.main{
-    width:95%;
-    padding:15px;
-    background:red;
-    border:none;
-    border-radius:12px;
-    color:white;
-    font-size:18px;
-    cursor:pointer;
+width:95%;
+padding:15px;
+background:red;
+border:none;
+border-radius:12px;
+color:white;
+font-size:18px;
+cursor:pointer;
 }
 
 #sonuc{
-    margin-top:15px;
-    color:lime;
+margin-top:15px;
+color:lime;
+text-align:left;
 }
 </style>
 </head>
@@ -87,7 +88,7 @@ button.main{
 
 <div class="box">
 
-<input id="cihaz" placeholder="Cihaz Modeli (iPhone 15 Pro Max)">
+<input id="cihaz" placeholder="Cihaz Modeli">
 
 <div class="fps">
 <button onclick="setFPS(60)">60 FPS</button>
@@ -105,68 +106,72 @@ button.main{
 
 let fps = 60;
 
-function setFPS(val){
-    fps = val;
+function setFPS(v){
+fps = v;
 }
 
-// 🔥 CİHAZ PRESET SİSTEMİ
+// 🔥 CİHAZ SİSTEMİ
 function cihazAyar(cihaz){
 
-    cihaz = cihaz.toLowerCase();
+cihaz = cihaz.toLowerCase();
 
-    if(cihaz.includes("iphone 13") || cihaz.includes("iphone 14")){
-        return {genel:180, red:185, scope:180};
-    }
-
-    if(cihaz.includes("iphone 15") || cihaz.includes("iphone 16") || cihaz.includes("iphone 17")){
-        return {genel:195, red:200, scope:195};
-    }
-
-    if(cihaz.includes("redmi")){
-        return {genel:175, red:190, scope:180};
-    }
-
-    if(cihaz.includes("samsung")){
-        return {genel:185, red:195, scope:185};
-    }
-
-    return {genel:180, red:185, scope:180};
+if(cihaz.includes("iphone")){
+return {genel:190, red:195};
 }
 
-// 🔥 MAIN SYSTEM
+if(cihaz.includes("redmi")){
+return {genel:180, red:185};
+}
+
+if(cihaz.includes("samsung")){
+return {genel:185, red:190};
+}
+
+return {genel:175, red:180};
+}
+
+// 🔥 FULL HASSASİYET
 function hesapla(){
 
-    let cihaz = document.getElementById("cihaz").value || "Genel";
+let cihaz = document.getElementById("cihaz").value || "Genel";
 
-    let ayar = cihazAyar(cihaz);
+let base = cihazAyar(cihaz);
 
-    // FPS etkisi
-    if(fps === 90){
-        ayar.genel += 5;
-        ayar.red += 5;
-        ayar.scope += 5;
-    }
+let genel = base.genel;
+let red = base.red;
 
-    if(fps === 120){
-        ayar.genel += 10;
-        ayar.red += 10;
-        ayar.scope += 10;
-    }
+let x2 = genel - 5;
+let x4 = genel - 10;
+let rifle = genel - 3;
+let bakis = 200;
 
-    // MAX 200 LIMIT
-    ayar.genel = Math.min(200, ayar.genel);
-    ayar.red = Math.min(200, ayar.red);
-    ayar.scope = Math.min(200, ayar.scope);
-
-    document.getElementById("sonuc").innerHTML =
-    "Cihaz: " + cihaz + "<br>" +
-    "Genel: " + ayar.genel + "<br>" +
-    "Red Dot: " + ayar.red + "<br>" +
-    "Scope: " + ayar.scope;
+// FPS etkisi
+if(fps === 90){
+genel += 5; red += 5; x2 += 5; x4 += 5; rifle += 5;
 }
 
+if(fps === 120){
+genel += 10; red += 10; x2 += 10; x4 += 10; rifle += 10;
+}
 
-// 🔴 BACKGROUND ANIMATION
+// MAX 200
+genel = Math.min(200, genel);
+red = Math.min(200, red);
+x2 = Math.min(200, x2);
+x4 = Math.min(200, x4);
+rifle = Math.min(200, rifle);
+
+document.getElementById("sonuc").innerHTML =
+"🎯 Genel: " + genel + "<br>" +
+"🔴 Kırmızı Nokta: " + red + "<br>" +
+"🔭 2x: " + x2 + "<br>" +
+"🔭 4x: " + x4 + "<br>" +
+"🔫 Tüfek Dürbünü: " + rifle + "<br>" +
+"👁 Serbest Bakış: " + bakis;
+
+}
+
+// 🔴 ARKA PLAN ANİMASYON
 const canvas = document.getElementById("bg");
 const ctx = canvas.getContext("2d");
 
@@ -175,33 +180,33 @@ canvas.height = window.innerHeight;
 
 let dots = [];
 
-for(let i=0;i<60;i++){
-    dots.push({
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        r:Math.random()*3,
-        dx:(Math.random()-0.5)*2,
-        dy:(Math.random()-0.5)*2
-    });
+for(let i=0;i<70;i++){
+dots.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*3,
+dx:(Math.random()-0.5)*2,
+dy:(Math.random()-0.5)*2
+});
 }
 
 function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    for(let d of dots){
-        ctx.beginPath();
-        ctx.fillStyle="red";
-        ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
-        ctx.fill();
+for(let d of dots){
+ctx.beginPath();
+ctx.fillStyle="red";
+ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+ctx.fill();
 
-        d.x += d.dx;
-        d.y += d.dy;
+d.x += d.dx;
+d.y += d.dy;
 
-        if(d.x<0 || d.x>canvas.width) d.dx*=-1;
-        if(d.y<0 || d.y>canvas.height) d.dy*=-1;
-    }
+if(d.x<0||d.x>canvas.width) d.dx*=-1;
+if(d.y<0||d.y>canvas.height) d.dy*=-1;
+}
 
-    requestAnimationFrame(draw);
+requestAnimationFrame(draw);
 }
 
 draw();
