@@ -7,30 +7,29 @@
 
 <style>
 body{
-background:#080808;
-font-family:Arial,sans-serif;
+background:#070707;
 color:white;
+font-family:Arial;
 text-align:center;
 padding:20px;
 }
 
 .logo{
-font-size:38px;
+font-size:40px;
 font-weight:bold;
-color:#ff1a1a;
-margin-top:20px;
+color:#ff0000;
+margin-top:15px;
 }
 
 .alt{
-color:#bbb;
-margin-bottom:25px;
+color:#aaa;
+margin-bottom:20px;
 }
 
 .kutu{
 background:#111;
-border:2px solid #ff1a1a;
-border-radius:20px;
 padding:20px;
+border-radius:18px;
 max-width:420px;
 margin:auto;
 box-shadow:0 0 20px red;
@@ -38,25 +37,37 @@ box-shadow:0 0 20px red;
 
 input{
 width:90%;
-padding:15px;
-border:none;
+padding:14px;
 border-radius:12px;
+border:none;
 background:#222;
 color:white;
-font-size:16px;
 margin-bottom:15px;
+font-size:16px;
 }
 
 button{
 width:95%;
 padding:15px;
-background:#ff1a1a;
-color:white;
 border:none;
 border-radius:12px;
+background:red;
+color:white;
 font-size:18px;
 font-weight:bold;
 cursor:pointer;
+}
+
+.fps button{
+width:30%;
+margin:5px;
+padding:10px;
+font-size:14px;
+background:#222;
+}
+
+.fps .active{
+background:red;
 }
 
 #sonuc{
@@ -73,15 +84,19 @@ display:none;
 <body>
 
 <div class="logo">wedzXsensi</div>
-<div class="alt">Premium Free Fire Hassasiyet Motoru</div>
+<div class="alt">FREE FIRE • AI HASSASİYET MOTORU</div>
 
 <div class="kutu">
 
 <input type="text" id="cihaz" placeholder="Cihaz Modeli">
 
-<button onclick="hesapla()">
-AI HASSASİYET OLUŞTUR
-</button>
+<div class="fps">
+<button onclick="fpsSec(60,this)" class="active">60 FPS</button>
+<button onclick="fpsSec(90,this)">90 FPS</button>
+<button onclick="fpsSec(120,this)">120 FPS</button>
+</div>
+
+<button onclick="hesapla()">AI HASSASİYET OLUŞTUR</button>
 
 <div id="sonuc"></div>
 
@@ -89,63 +104,50 @@ AI HASSASİYET OLUŞTUR
 
 <script>
 
+let fps = 60;
+
+function fpsSec(x,btn){
+fps = x;
+document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
+}
+
 function hesapla(){
 
-let cihaz =
-document.getElementById("cihaz").value.toLowerCase();
+let cihaz = document.getElementById("cihaz").value.toLowerCase();
 
-let genel=200;
-let nokta=200;
-let iki=200;
-let dort=200;
-let awm=200;
-let bakis=200;
+let base = 180;
 
-if(cihaz.includes("iphone")){
-genel=200;
-nokta=200;
-iki=195;
-dort=190;
-awm=185;
-bakis=200;
-}
+// cihaz boost sistemi
+if(cihaz.includes("iphone")) base = 200;
+else if(cihaz.includes("redmi")) base = 195;
+else if(cihaz.includes("xiaomi")) base = 193;
+else if(cihaz.includes("samsung")) base = 190;
+else if(cihaz.length < 3) base = 170;
 
-else if(
-cihaz.includes("redmi") ||
-cihaz.includes("xiaomi")
-){
-genel=198;
-nokta=200;
-iki=194;
-dort=188;
-awm=180;
-bakis=200;
-}
+// FPS etkisi
+let fpsBoost = fps === 60 ? 20 : fps === 90 ? 10 : 0;
 
-else if(
-cihaz.includes("samsung")
-){
-genel=197;
-nokta=200;
-iki=193;
-dort=187;
-awm=178;
-bakis=200;
-}
+let genel = Math.min(200, base + fpsBoost);
+let redDot = Math.min(200, genel - 2);
+let x2 = Math.min(200, genel - 6);
+let x4 = Math.min(200, genel - 10);
+let awm = Math.min(200, genel - 15);
+let bakis = 200;
 
 document.getElementById("sonuc").style.display="block";
 
-document.getElementById("sonuc").innerHTML=
-`
-<h2>Premium Hassasiyet</h2>
-
+document.getElementById("sonuc").innerHTML=`
+<h2>🔥 Premium Hassasiyet</h2>
+<p>📱 Cihaz: ${cihaz || "Bilinmiyor"}</p>
+<p>⚡ FPS: ${fps}</p>
+<hr>
 <p>🎯 Genel: ${genel}</p>
-<p>🔴 Kırmızı Nokta: ${nokta}</p>
-<p>🔭 2x Dürbün: ${iki}</p>
-<p>🎯 4x Dürbün: ${dort}</p>
+<p>🔴 Kırmızı Nokta: ${redDot}</p>
+<p>🔭 2x: ${x2}</p>
+<p>🎯 4x: ${x4}</p>
 <p>💥 AWM: ${awm}</p>
-<p>👁 Serbest Bakış: ${bakis}</p>
-
+<p>👁 Serbest: ${bakis}</p>
 `;
 }
 
