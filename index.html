@@ -1,10 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-<title>wedzXsensi</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wedzXSensi</title>
+
+<style>
+body{
+    background:#000;
+    color:#fff;
+    font-family:Arial,sans-serif;
+    text-align:center;
+    padding:30px;
+}
+
+h1{
+    color:red;
+}
+
+.box{
+    background:#111;
+    padding:20px;
+    border-radius:15px;
+    max-width:400px;
+    margin:auto;
+}
+
+input{
+    width:90%;
+    padding:10px;
+    margin:10px 0;
+    border:none;
+    border-radius:8px;
+}
+
+button{
+    background:red;
+    color:white;
+    border:none;
+    padding:12px 25px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+#sonuc{
+    margin-top:20px;
+    font-size:22px;
+    color:lime;
+}
+</style>
 </head>
-<body style="background:black;color:red;text-align:center;">
-<h1>wedzXsensi</h1>
-<p>Sitem çalışıyor.</p>
+
+<body>
+
+<h1>wedzXSensi</h1>
+
+<div class="box">
+<h3>Free Fire Hassasiyet Oluşturucu</h3>
+
+<input type="text" id="cihaz" placeholder="Cihazını Yaz">
+
+<button onclick="hesapla()">Hesapla</button>
+
+<div id="sonuc"></div>
+</div>
+
+<script>
+function hesapla(){
+let genel=Math.floor(Math.random()*20)+80;
+let nokta=Math.floor(Math.random()*20)+70;
+let durbun=Math.floor(Math.random()*20)+60;
+let awm=Math.floor(Math.random()*20)+40;
+
+document.getElementById("sonuc").innerHTML=
+"Genel: "+genel+
+"<br>Nokta: "+nokta+
+"<br>2x: "+durbun+
+"<br>AWM: "+awm;
+}
+</script>
+
 </body>
 </html>
