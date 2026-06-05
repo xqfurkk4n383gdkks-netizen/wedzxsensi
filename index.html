@@ -3,224 +3,219 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>wedzxsensi</title>
+<title>wedzXsensi AI</title>
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial, Helvetica, sans-serif;
-}
-
 body{
-  background:#050505;
-  color:white;
-  display:flex;
-  height:100vh;
-  overflow:hidden;
+margin:0;
+background:black;
+overflow:hidden;
+font-family:Arial;
+color:white;
 }
 
-/* LEFT MENU */
-.sidebar{
-  width:220px;
-  background:linear-gradient(180deg,#120000,#000);
-  padding:20px;
-  border-right:2px solid #ff000055;
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
 }
 
-.logo{
-  color:red;
-  font-size:22px;
-  font-weight:bold;
-  margin-bottom:30px;
+.box{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:280px;
+padding:12px;
+background:rgba(0,0,0,0.75);
+border:1px solid red;
+border-radius:14px;
+box-shadow:0 0 25px red;
+backdrop-filter:blur(10px);
 }
 
-.btn{
-  display:block;
-  padding:12px;
-  margin:10px 0;
-  background:#111;
-  border:1px solid #ff000055;
-  color:white;
-  border-radius:10px;
-  cursor:pointer;
-  transition:0.3s;
+.title{
+text-align:center;
+font-size:26px;
+font-weight:900;
+text-shadow:0 0 10px red,0 0 25px red;
 }
 
-.btn:hover{
-  background:red;
-}
-
-/* MAIN */
-.main{
-  flex:1;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:radial-gradient(circle at top,#220000,#000);
-  position:relative;
-}
-
-/* floating dots */
-.main::before{
-  content:"";
-  position:absolute;
-  width:100%;
-  height:100%;
-  background-image:radial-gradient(red 1px, transparent 1px);
-  background-size:50px 50px;
-  opacity:0.2;
-  animation:move 6s infinite linear;
-}
-
-@keyframes move{
-  from{transform:translateY(0);}
-  to{transform:translateY(50px);}
-}
-
-/* CARD */
-.card{
-  width:380px;
-  background:#0d0d0d;
-  border:1px solid #ff000040;
-  border-radius:20px;
-  padding:20px;
-  box-shadow:0 0 20px red;
-  z-index:2;
-}
-
-h2{
-  text-align:center;
-  margin-bottom:20px;
-}
+.title span{color:red;}
 
 input,select{
-  width:100%;
-  padding:12px;
-  margin:10px 0;
-  background:#000;
-  border:1px solid #ff000055;
-  color:white;
-  border-radius:10px;
+width:100%;
+padding:8px;
+margin-top:8px;
+border-radius:10px;
+border:1px solid red;
+background:black;
+color:white;
+font-size:12px;
 }
 
-.fps{
-  display:flex;
-  justify-content:space-between;
-  margin:10px 0;
+button{
+width:100%;
+padding:9px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+background:red;
+color:white;
+font-size:12px;
+font-weight:bold;
+box-shadow:0 0 15px red;
+cursor:pointer;
 }
 
-.fps button{
-  flex:1;
-  margin:5px;
-  padding:10px;
-  background:#111;
-  border:1px solid #ff000055;
-  color:white;
-  border-radius:10px;
-  cursor:pointer;
-}
-
-.fps button.active{
-  background:red;
-}
-
-.generate{
-  width:100%;
-  padding:14px;
-  background:red;
-  border:none;
-  border-radius:12px;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  margin-top:10px;
-}
-
-/* RESULT */
 .result{
-  margin-top:15px;
-  padding:15px;
-  background:#111;
-  border-radius:12px;
-  border:1px solid #ff000055;
+margin-top:10px;
+display:none;
+padding:8px;
+border:1px solid red;
+border-radius:10px;
+background:rgba(0,0,0,0.5);
+font-size:12px;
 }
 
-.bar{
-  margin:8px 0;
-}
-
-.fill{
-  height:6px;
-  background:red;
-  border-radius:10px;
-}
-
-.small{
-  font-size:12px;
-  opacity:0.8;
+.row{
+display:flex;
+justify-content:space-between;
+margin:4px 0;
 }
 </style>
 </head>
 
 <body>
 
-<div class="sidebar">
-  <div class="logo">wedzxsensi</div>
-  <div class="btn">Home</div>
-  <div class="btn">Sensitivity</div>
+<canvas id="bg"></canvas>
+
+<div class="box">
+
+<div class="title">wedzX<span>sensi</span></div>
+
+<input id="device" placeholder="Cihaz modeli">
+
+<select id="fps">
+<option value="60">60 FPS</option>
+<option value="90">90 FPS</option>
+<option value="120">120 FPS</option>
+</select>
+
+<button onclick="generate()">AI HASSASİYET</button>
+
+<div class="result" id="res">
+
+<div class="row">Genel <span id="g"></span></div>
+<div class="row">Red Dot <span id="r"></span></div>
+<div class="row">2x <span id="x2"></span></div>
+<div class="row">4x <span id="x4"></span></div>
+<div class="row">Tüfek <span id="sn"></span></div>
+<div class="row">Serbest Bakış <span id="free"></span></div>
+
 </div>
-
-<div class="main">
-
-  <div class="card">
-    <h2>AI Sensitivity</h2>
-
-    <input placeholder="Device (iPhone / Samsung / Redmi)">
-
-    <div class="fps">
-      <button onclick="setFPS(this)">60</button>
-      <button onclick="setFPS(this)">90</button>
-      <button onclick="setFPS(this)">120</button>
-    </div>
-
-    <button class="generate" onclick="generate()">GENERATE</button>
-
-    <div class="result" id="result" style="display:none;">
-      <h3>AI RESULT</h3>
-
-      <div class="bar">Genel <div class="fill" style="width:85%"></div></div>
-      <div class="bar">Kırmızı Nokta <div class="fill" style="width:80%"></div></div>
-      <div class="bar">2x Dürbün <div class="fill" style="width:75%"></div></div>
-      <div class="bar">4x Dürbün <div class="fill" style="width:70%"></div></div>
-      <div class="bar">Serbest Bakış <div class="fill" style="width:95%"></div></div>
-
-      <p class="small">AI optimized sensitivity generated.</p>
-    </div>
-
-  </div>
 
 </div>
 
 <script>
-let fps = 60;
 
-function setFPS(btn){
-  document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  fps = btn.innerText;
+/* 🔴 BACKGROUND */
+const canvas=document.getElementById("bg");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+}
+resize();
+window.addEventListener("resize",resize);
+
+let dots=[];
+
+for(let i=0;i<180;i++){
+dots.push({
+x:Math.random()*innerWidth,
+y:Math.random()*innerHeight,
+vx:(Math.random()-0.5)*3,
+vy:(Math.random()-0.5)*3,
+r:Math.random()*3+1
+});
+}
+
+function animate(){
+ctx.fillStyle="black";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+for(let d of dots){
+
+d.x+=d.vx;
+d.y+=d.vy;
+
+if(d.x<0||d.x>canvas.width)d.vx*=-1;
+if(d.y<0||d.y>canvas.height)d.vy*=-1;
+
+ctx.beginPath();
+ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+
+ctx.fillStyle="red";
+ctx.shadowBlur=30;
+ctx.shadowColor="red";
+ctx.fill();
+}
+
+requestAnimationFrame(animate);
+}
+animate();
+
+/* 🔥 AI SYSTEM (FULL FIX) */
+function base(device){
+device=device.toLowerCase();
+
+if(device.includes("iphone")) return 170 + Math.random()*10;
+if(device.includes("samsung")) return 160 + Math.random()*15;
+if(device.includes("xiaomi")) return 155 + Math.random()*20;
+if(device.includes("redmi")) return 150 + Math.random()*20;
+if(device.includes("poco")) return 148 + Math.random()*22;
+
+return 145 + Math.random()*25;
+}
+
+function clamp(v){
+return Math.max(0,Math.min(200,v));
 }
 
 function generate(){
-  document.getElementById("result").style.display="block";
 
-  let base = fps == 120 ? 95 : fps == 90 ? 85 : 75;
+let device=document.getElementById("device").value;
+let fps=parseInt(document.getElementById("fps").value);
 
-  document.querySelectorAll(".fill").forEach((bar,i)=>{
-    bar.style.width = (base - i*5) + "%";
-  });
+if(!device) return alert("Cihaz yaz");
+
+let b=base(device);
+
+/* FPS etkisi */
+if(fps===120) b+=10;
+if(fps===90) b+=5;
+
+/* her tıkta farklı */
+let general = b + Math.random()*8;
+let redDot  = b - 2 + Math.random()*10;
+let x2      = b - 10 + Math.random()*12;
+let x4      = b - 15 + Math.random()*12;
+let sniper  = b - 20 + Math.random()*12;
+let free    = b - 5 + Math.random()*15;
+
+document.getElementById("res").style.display="block";
+
+document.getElementById("g").innerText=clamp(Math.floor(general));
+document.getElementById("r").innerText=clamp(Math.floor(redDot));
+document.getElementById("x2").innerText=clamp(Math.floor(x2));
+document.getElementById("x4").innerText=clamp(Math.floor(x4));
+document.getElementById("sn").innerText=clamp(Math.floor(sniper));
+document.getElementById("free").innerText=clamp(Math.floor(free));
 }
+
 </script>
 
 </body>
