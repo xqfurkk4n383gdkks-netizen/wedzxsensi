@@ -6,148 +6,124 @@
 <title>wedzxsensi</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
-
-body{
-background:#000;
-color:white;
-overflow:hidden;
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: black;
+    color: white;
+    overflow-x: hidden;
 }
 
-/* BACKGROUND */
-.bg{
-position:fixed;
-width:100%;
-height:100%;
-background:radial-gradient(circle,#200000,#000);
-z-index:-1;
+/* Neon kırmızı background */
+.bg {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 20%, #2a0000, black 60%);
+    z-index: -2;
 }
 
-.dot{
-position:absolute;
-width:5px;
-height:5px;
-background:red;
-border-radius:50%;
-opacity:.5;
-animation:float 6s infinite linear;
+.dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: red;
+    border-radius: 50%;
+    box-shadow: 0 0 10px red;
+    animation: float 6s infinite alternate;
 }
 
-@keyframes float{
-0%{transform:translateY(0);opacity:0}
-50%{opacity:1}
-100%{transform:translateY(-900px);opacity:0}
+@keyframes float {
+    from { transform: translateY(0px); opacity: 0.3; }
+    to { transform: translateY(30px); opacity: 1; }
 }
 
-/* LAYOUT */
-.container{
-display:flex;
-height:100vh;
+/* Sidebar */
+.sidebar {
+    width: 200px;
+    height: 100vh;
+    position: fixed;
+    background: rgba(20,0,0,0.8);
+    padding: 20px;
 }
 
-/* SIDEBAR FIX */
-.sidebar{
-width:220px;
-background:#0a0a0a;
-border-right:1px solid #220000;
-padding:20px;
-position:fixed;
-left:0;
-top:0;
-bottom:0;
+.logo {
+    color: red;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 30px;
 }
 
-.logo{
-color:red;
-font-size:20px;
-margin-bottom:30px;
-font-weight:bold;
+.btn {
+    display: block;
+    padding: 12px;
+    margin: 10px 0;
+    background: #111;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
 }
 
-.menu{
-padding:12px;
-margin:10px 0;
-background:#111;
-border:1px solid #222;
-border-radius:10px;
-cursor:pointer;
-transition:.2s;
+.btn:hover {
+    background: red;
 }
 
-.menu:hover{
-border-color:red;
+/* Main */
+.main {
+    margin-left: 220px;
+    padding: 30px;
 }
 
-/* MAIN CENTER FIX */
-.main{
-margin-left:220px;
-width:100%;
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
+/* Card */
+.card {
+    background: rgba(20,20,20,0.9);
+    padding: 20px;
+    border-radius: 15px;
+    width: 400px;
+    box-shadow: 0 0 20px red;
 }
 
-/* CARD */
-.card{
-width:350px;
-background:#111;
-padding:20px;
-border-radius:15px;
-border:1px solid #222;
-box-shadow:0 0 20px rgba(255,0,0,0.1);
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background: black;
+    color: white;
+    border: 1px solid red;
+    border-radius: 10px;
 }
 
-h2{
-margin:10px 0;
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background: red;
+    border: none;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
 }
 
-/* INPUT */
-input,select{
-width:100%;
-padding:12px;
-margin:10px 0;
-background:#000;
-border:1px solid #333;
-border-radius:8px;
-color:white;
-outline:none;
+/* Result */
+.result {
+    margin-top: 20px;
+    display: none;
 }
 
-/* BUTTON */
-button{
-width:100%;
-padding:12px;
-background:red;
-border:none;
-border-radius:10px;
-color:white;
-font-weight:bold;
-cursor:pointer;
+.bar {
+    margin: 10px 0;
 }
 
-button:hover{
-background:#ff1b1b;
+.line {
+    height: 10px;
+    background: #222;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
-/* RESULT BAR */
-.bar{
-margin:10px 0;
-}
-
-.line{
-height:8px;
-background:#222;
-border-radius:10px;
-overflow:hidden;
-margin-top:5px;
-}
-
-.fill{
-height:100%;
-width:0%;
-background:red;
-transition:1s;
+.fill {
+    height: 10px;
+    background: red;
 }
 </style>
 </head>
@@ -156,101 +132,94 @@ transition:1s;
 
 <div class="bg" id="bg"></div>
 
-<div class="container">
-
-<!-- SIDEBAR -->
 <div class="sidebar">
-<div class="logo">wedzxsensi</div>
-
-<div class="menu" onclick="showHome()">Home</div>
-<div class="menu" onclick="showResult()">Sensitivity</div>
+    <div class="logo">wedzxsensi</div>
+    <div class="btn" onclick="showHome()">Home</div>
+    <div class="btn" onclick="showSens()">Sensitivity</div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
 <!-- HOME -->
 <div id="home">
-<div class="card">
-<h2>Device</h2>
-<input id="device" placeholder="iPhone / Redmi / Samsung">
-
-<h2>FPS</h2>
-<select id="fps">
-<option value="60">60 FPS</option>
-<option value="90">90 FPS</option>
-<option value="120">120 FPS</option>
-</select>
-
-<button onclick="generate()">GENERATE</button>
-</div>
+    <h1>Free Fire AI Sensitivity</h1>
+    <p>En iyi ayarları cihazına göre üret</p>
 </div>
 
-<!-- RESULT -->
-<div id="result" style="display:none;">
-<div class="card">
-<h2>AI Result</h2>
-<p id="info"></p>
+<!-- SENS -->
+<div id="sens" style="display:none">
+    <div class="card">
+        <h2>Device</h2>
+        <input id="device" placeholder="iPhone / Redmi / Samsung">
 
-<div class="bar">Genel<div class="line"><div id="g" class="fill"></div></div></div>
-<div class="bar">Kırmızı Nokta<div class="line"><div id="k" class="fill"></div></div></div>
-<div class="bar">2x Dürbün<div class="line"><div id="d2" class="fill"></div></div></div>
-<div class="bar">4x Dürbün<div class="line"><div id="d4" class="fill"></div></div></div>
-<div class="bar">Serbest Bakış<div class="line"><div id="s" class="fill"></div></div></div>
+        <h2>FPS</h2>
+        <select id="fps">
+            <option value="60">60 FPS</option>
+            <option value="90">90 FPS</option>
+            <option value="120">120 FPS</option>
+        </select>
 
-</div>
+        <button onclick="generate()">GENERATE</button>
+
+        <div class="result" id="result">
+            <h3>AI Hassasiyet Sonucu</h3>
+
+            <div class="bar">Genel
+                <div class="line"><div class="fill" style="width:85%"></div></div>
+            </div>
+
+            <div class="bar">Red Dot
+                <div class="line"><div class="fill" style="width:80%"></div></div>
+            </div>
+
+            <div class="bar">2x Scope
+                <div class="line"><div class="fill" style="width:70%"></div></div>
+            </div>
+
+            <div class="bar">4x Scope
+                <div class="line"><div class="fill" style="width:60%"></div></div>
+            </div>
+
+            <div class="bar">Free Look
+                <div class="line"><div class="fill" style="width:90%"></div></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 </div>
 
 <script>
-
-/* BACKGROUND */
-const bg=document.getElementById("bg");
-for(let i=0;i<40;i++){
-let d=document.createElement("div");
-d.className="dot";
-d.style.left=Math.random()*100+"%";
-d.style.top=Math.random()*100+"%";
-d.style.animationDuration=(3+Math.random()*5)+"s";
-bg.appendChild(d);
-}
-
-/* NAV */
 function showHome(){
-document.getElementById("home").style.display="block";
-document.getElementById("result").style.display="none";
+    document.getElementById("home").style.display="block";
+    document.getElementById("sens").style.display="none";
 }
 
-function showResult(){
-document.getElementById("home").style.display="none";
-document.getElementById("result").style.display="block";
+function showSens(){
+    document.getElementById("home").style.display="none";
+    document.getElementById("sens").style.display="block";
 }
 
-/* RANDOM */
-function r(max){
-return Math.floor(Math.random()*max);
-}
-
-/* GENERATE */
 function generate(){
+    document.getElementById("result").style.display="block";
 
-let device=document.getElementById("device").value;
-let fps=document.getElementById("fps").value;
+    let fps = document.getElementById("fps").value;
 
-let base = fps=="60"?120:fps=="90"?150:200;
+    let base = fps == 60 ? 70 : fps == 90 ? 80 : 90;
 
-document.getElementById("info").innerText=device+" • "+fps+" FPS";
-
-document.getElementById("g").style.width=r(base)+"%";
-document.getElementById("k").style.width=r(base)+"%";
-document.getElementById("d2").style.width=r(base)+"%";
-document.getElementById("d4").style.width=r(base)+"%";
-document.getElementById("s").style.width=r(200)+"%";
-
-showResult();
+    document.querySelectorAll(".fill").forEach((el,i)=>{
+        el.style.width = (base + i*2) + "%";
+    });
 }
 
+/* neon floating dots */
+for(let i=0;i<40;i++){
+    let d = document.createElement("div");
+    d.className="dot";
+    d.style.left=Math.random()*100+"%";
+    d.style.top=Math.random()*100+"%";
+    document.getElementById("bg").appendChild(d);
+}
 </script>
 
 </body>
