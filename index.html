@@ -4,191 +4,159 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>wedzxsensi</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
 
-<div class="bg"></div>
-
-<div class="logo">wedzx<span>sensi</span></div>
-
-<div class="card">
-
-<h3>CİHAZ MODELİ</h3>
-<input id="device" placeholder="iPhone / Redmi / Samsung">
-
-<h3>FPS SEÇ</h3>
-<div class="fps">
-<button onclick="setFPS(60,this)">60 FPS</button>
-<button onclick="setFPS(90,this)">90 FPS</button>
-<button onclick="setFPS(120,this)">120 FPS</button>
-</div>
-
-<button class="mainbtn" onclick="go()">AI HASSASİYET OLUŞTUR</button>
-
-</div>
-
-<script>
-let fps = 60;
-
-function setFPS(v,btn){
-fps = v;
-document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
-btn.classList.add("active");
-}
-
-function go(){
-localStorage.setItem("device",document.getElementById("device").value);
-localStorage.setItem("fps",fps);
-window.location.href="result.html";
-}
-</script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sonuç</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div class="bg"></div>
-
-<div class="logo">wedzx<span>sensi</span></div>
-
-<div class="card">
-
-<h2>AI HASSASİYET</h2>
-<p id="info"></p>
-
-<div class="bar">Genel <span id="v1"></span><div class="line"><div id="b1"></div></div></div>
-<div class="bar">Kırmızı Nokta <span id="v2"></span><div class="line"><div id="b2"></div></div></div>
-<div class="bar">2x <span id="v3"></span><div class="line"><div id="b3"></div></div></div>
-<div class="bar">4x <span id="v4"></span><div class="line"><div id="b4"></div></div></div>
-<div class="bar">Tüfek <span id="v5"></span><div class="line"><div id="b5"></div></div></div>
-<div class="bar">Serbest <span id="v6"></span><div class="line"><div id="b6"></div></div></div>
-
-<button class="mainbtn" onclick="copy()">KOPYALA</button>
-
-</div>
-
-<script>
-let device = localStorage.getItem("device") || "Bilinmiyor";
-let fps = localStorage.getItem("fps") || 60;
-
-document.getElementById("info").innerText =
-device + " • " + fps + " FPS";
-
-let base = fps==60 ? 150 : fps==90 ? 170 : 190;
-
-let data = [
-base,
-base-10,
-base-25,
-base-45,
-base-60,
-200
-];
-
-for(let i=1;i<=6;i++){
-document.getElementById("v"+i).innerText = data[i-1];
-document.getElementById("b"+i).style.width = data[i-1] + "%";
-}
-
-function copy(){
-navigator.clipboard.writeText(
-`Genel:${data[0]} | Red:${data[1]} | 2x:${data[2]} | 4x:${data[3]} | Tüfek:${data[4]} | Serbest:${data[5]}`
-);
-alert("Kopyalandı!");
-}
-</script>
-
-</body>
-</html>
-body{
+<style>
+*{
 margin:0;
+padding:0;
 font-family:Arial;
-background:black;
-color:white;
-overflow-x:hidden;
+box-sizing:border-box;
 }
 
+body{
+background:#050505;
+color:white;
+overflow:hidden;
+}
+
+/* BACKGROUND GRID + GLOW */
 .bg{
 position:fixed;
 width:100%;
 height:100%;
 background:
-radial-gradient(circle at 30% 20%, rgba(255,0,0,0.25), transparent 50%),
-radial-gradient(circle at 70% 80%, rgba(255,0,0,0.15), transparent 50%);
-z-index:-1;
+radial-gradient(circle at 20% 20%, rgba(255,0,0,0.25), transparent 40%),
+radial-gradient(circle at 80% 80%, rgba(255,0,0,0.15), transparent 40%);
+filter: blur(0px);
+z-index:-2;
+}
+
+/* LAYOUT */
+.app{
+display:flex;
+height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar{
+width:220px;
+background:rgba(10,10,10,0.95);
+border-right:1px solid rgba(255,0,0,0.2);
+padding:20px;
+box-shadow:0 0 20px rgba(255,0,0,0.1);
 }
 
 .logo{
-text-align:center;
-font-size:28px;
-margin-top:25px;
+font-size:20px;
 font-weight:bold;
+margin-bottom:30px;
 }
 
 .logo span{color:red;}
 
-.card{
-width:90%;
-max-width:420px;
-margin:40px auto;
+.menu{
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.menu button{
+padding:10px;
 background:#111;
+border:1px solid rgba(255,0,0,0.2);
+color:white;
+border-radius:8px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.menu button:hover{
+background:red;
+}
+
+/* MAIN */
+.main{
+flex:1;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+/* CARD */
+.card{
+width:420px;
+background:rgba(15,15,15,0.9);
+border:1px solid rgba(255,0,0,0.2);
+border-radius:15px;
 padding:20px;
-border-radius:14px;
-border:1px solid rgba(255,0,0,0.3);
 box-shadow:0 0 25px rgba(255,0,0,0.2);
 }
 
+.title{
+font-size:18px;
+margin-bottom:15px;
+}
+
+/* INPUT */
 input{
 width:100%;
 padding:12px;
 border:none;
 border-radius:10px;
-background:black;
+background:#111;
 color:white;
-margin-top:10px;
+outline:none;
+margin-bottom:10px;
 }
 
+/* FPS */
 .fps{
 display:flex;
-gap:10px;
+gap:8px;
+margin-top:10px;
 }
 
 .fps button{
 flex:1;
 padding:10px;
-border:none;
-background:#222;
+background:#111;
+border:1px solid rgba(255,0,0,0.2);
 color:white;
 border-radius:8px;
+cursor:pointer;
 }
 
 .fps button.active{
 background:red;
 }
 
-.mainbtn{
+/* BUTTON */
+.btn{
 width:100%;
 margin-top:15px;
 padding:12px;
-background:red;
 border:none;
+background:red;
 color:white;
-border-radius:10px;
 font-weight:bold;
+border-radius:10px;
 cursor:pointer;
 }
 
+/* RESULT */
+.result{
+display:none;
+width:420px;
+}
+
 .bar{
-margin:12px 0;
+margin:10px 0;
+}
+
+.label{
+display:flex;
+justify-content:space-between;
+font-size:13px;
 }
 
 .line{
@@ -199,9 +167,114 @@ overflow:hidden;
 margin-top:5px;
 }
 
-.line div{
+.fill{
 height:100%;
 background:red;
 width:0%;
 transition:1s;
+box-shadow:0 0 10px red;
 }
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<div class="logo">wedzx<span>sensi</span></div>
+
+<div class="menu">
+<button onclick="showHome()">Ana Sayfa</button>
+<button onclick="showResult()">Hassasiyet</button>
+</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- HOME -->
+<div class="card" id="home">
+<div class="title">Cihaz Seç</div>
+
+<input id="device" placeholder="iPhone / Redmi / Samsung">
+
+<div class="title">FPS</div>
+<div class="fps">
+<button onclick="setFPS(60,this)">60</button>
+<button onclick="setFPS(90,this)">90</button>
+<button onclick="setFPS(120,this)">120</button>
+</div>
+
+<button class="btn" onclick="generate()">Oluştur</button>
+</div>
+
+<!-- RESULT -->
+<div class="card result" id="result">
+
+<div class="title">Hassasiyet Menüsü</div>
+
+<div id="bars"></div>
+
+</div>
+
+</div>
+</div>
+
+<script>
+
+let fps=60;
+
+function setFPS(v,btn){
+fps=v;
+document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
+}
+
+function generate(){
+
+document.getElementById("home").style.display="none";
+document.getElementById("result").style.display="block";
+
+let base = fps==60?150:fps==90?170:190;
+
+let data={
+"Genel":base,
+"Kırmızı Nokta":base-10,
+"2x":base-25,
+"4x":base-40,
+"Tüfek":base-55,
+"Serbest":200
+};
+
+let html="";
+
+for(let k in data){
+html+=`
+<div class="bar">
+<div class="label"><span>${k}</span><span>${data[k]}</span></div>
+<div class="line"><div class="fill" style="width:${data[k]/2}%"></div></div>
+</div>
+`;
+}
+
+document.getElementById("bars").innerHTML=html;
+}
+
+function showHome(){
+document.getElementById("home").style.display="block";
+document.getElementById("result").style.display="none";
+}
+
+function showResult(){
+document.getElementById("home").style.display="none";
+document.getElementById("result").style.display="block";
+}
+
+</script>
+
+</body>
+</html>
