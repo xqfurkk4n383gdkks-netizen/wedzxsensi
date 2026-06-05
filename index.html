@@ -3,257 +3,238 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>wedzxsensi</title>
+<title>wedzxsensi AI</title>
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#000;
-color:white;
-overflow:hidden;
+body {
+  margin:0;
+  font-family: Arial;
+  background:#000;
+  color:white;
+  overflow-x:hidden;
 }
 
-/* BACKGROUND */
-.bg{
-position:fixed;
-width:100%;
-height:100%;
-background:
-radial-gradient(circle at 70% 30%, rgba(255,0,0,0.25), transparent 55%),
-radial-gradient(circle at 30% 80%, rgba(120,0,0,0.25), transparent 60%),
-#000;
+/* neon background particles */
+.background {
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:black;
+  overflow:hidden;
+  z-index:-1;
 }
 
-/* LAYOUT */
-.wrapper{
-display:flex;
-height:100vh;
+.dot {
+  position:absolute;
+  width:6px;
+  height:6px;
+  background:red;
+  border-radius:50%;
+  opacity:0.6;
+  animation: float 6s infinite;
 }
 
-/* SIDEBAR */
+@keyframes float {
+  0% {transform:translateY(0); opacity:0;}
+  50% {opacity:1;}
+  100% {transform:translateY(-800px); opacity:0;}
+}
+
+/* layout */
+.container{
+  display:flex;
+}
+
+/* sidebar */
 .sidebar{
-width:200px;
-background:rgba(10,10,10,0.9);
-border-right:1px solid rgba(255,0,0,0.2);
-padding:20px;
+  width:200px;
+  height:100vh;
+  background:#0a0a0a;
+  padding:20px;
+  border-right:1px solid red;
 }
 
-.logo{
-font-size:18px;
-font-weight:bold;
-margin-bottom:40px;
+.sidebar h2{
+  color:red;
 }
 
-.logo span{color:red;}
-
-.sidebar button{
-width:100%;
-padding:12px;
-margin:10px 0;
-background:#111;
-border:1px solid rgba(255,0,0,0.2);
-color:white;
-border-radius:10px;
-cursor:pointer;
+.btnMenu{
+  display:block;
+  margin:10px 0;
+  padding:10px;
+  background:#111;
+  border:1px solid #222;
+  color:white;
+  cursor:pointer;
+  border-radius:8px;
 }
 
-/* MAIN */
+.btnMenu:hover{
+  border-color:red;
+}
+
+/* main */
 .main{
-flex:1;
-display:flex;
-justify-content:center;
-align-items:flex-start;
-padding-top:70px;
+  flex:1;
+  padding:40px;
 }
 
-/* CARD */
+/* card */
 .card{
-width:420px;
-background:rgba(15,15,15,0.85);
-border:1px solid rgba(255,0,0,0.25);
-border-radius:14px;
-padding:20px;
-box-shadow:0 0 25px rgba(255,0,0,0.15);
-backdrop-filter: blur(10px);
+  background:#111;
+  padding:20px;
+  border-radius:15px;
+  border:1px solid #222;
+  max-width:500px;
 }
 
-/* INPUT */
-input{
-width:100%;
-padding:12px;
-border:none;
-border-radius:10px;
-background:#000;
-color:white;
-border:1px solid rgba(255,0,0,0.2);
+input, select{
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+  background:black;
+  border:1px solid #333;
+  color:white;
+  border-radius:8px;
 }
 
-/* FPS */
-.fps{
-display:flex;
-gap:10px;
-margin-top:10px;
+button{
+  width:100%;
+  padding:12px;
+  background:red;
+  border:none;
+  color:white;
+  font-weight:bold;
+  border-radius:10px;
+  cursor:pointer;
 }
 
-.fps button{
-flex:1;
-padding:10px;
-background:#111;
-border:1px solid rgba(255,0,0,0.2);
-color:white;
-border-radius:10px;
-cursor:pointer;
+button:hover{
+  background:#ff1a1a;
 }
 
-.fps button.active{
-background:red;
-box-shadow:0 0 12px red;
-}
-
-/* BUTTON */
-.generate{
-width:100%;
-margin-top:15px;
-padding:12px;
-border:none;
-border-radius:12px;
-background:red;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
-
-/* RESULT PAGE */
+/* result bars */
 .bar{
-margin:14px 0;
+  margin:10px 0;
 }
 
-.top{
-display:flex;
-justify-content:space-between;
-font-size:13px;
+.bar span{
+  display:block;
+  font-size:14px;
+  margin-bottom:5px;
 }
 
-.track{
-height:6px;
-background:#222;
-border-radius:10px;
-overflow:hidden;
-margin-top:6px;
+.progress{
+  height:10px;
+  background:#222;
+  border-radius:10px;
+  overflow:hidden;
 }
 
-.fill{
-height:100%;
-width:0%;
-background:red;
-box-shadow:0 0 10px red;
-transition:1s;
+.progress div{
+  height:10px;
+  background:red;
 }
-
-/* HIDE */
-.hidden{display:none;}
 </style>
 </head>
 
 <body>
 
-<div class="bg"></div>
+<div class="background" id="bg"></div>
 
-<div class="wrapper">
+<div class="container">
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-<div class="logo">wedzx<span>sensi</span></div>
+  <div class="sidebar">
+    <h2>wedzxsensi</h2>
+    <button class="btnMenu" onclick="showHome()">Home</button>
+    <button class="btnMenu" onclick="showResult()">Sensitivity</button>
+  </div>
 
-<button onclick="showHome()">Home</button>
-<button onclick="showResult()">Sensitivity</button>
-</div>
+  <div class="main">
 
-<!-- MAIN -->
-<div class="main">
+    <!-- HOME -->
+    <div id="home">
+      <div class="card">
+        <h2>Device</h2>
+        <input id="device" placeholder="iPhone / Redmi / Samsung">
 
-<!-- HOME -->
-<div class="card" id="home">
-<h3>Device Model</h3>
-<input id="device" placeholder="iPhone / Redmi / Samsung">
+        <h2>FPS</h2>
+        <select id="fps">
+          <option value="60">60 FPS</option>
+          <option value="90">90 FPS</option>
+          <option value="120">120 FPS</option>
+        </select>
 
-<h3>FPS</h3>
-<div class="fps">
-<button onclick="setFPS(60,this)">60 FPS</button>
-<button onclick="setFPS(90,this)">90 FPS</button>
-<button onclick="setFPS(120,this)">120 FPS</button>
-</div>
+        <button onclick="generate()">GENERATE</button>
+      </div>
+    </div>
 
-<button class="generate" onclick="generate()">AI HASSASİYET OLUŞTUR</button>
-</div>
+    <!-- RESULT -->
+    <div id="result" style="display:none;">
+      <div class="card">
+        <h2>AI Hassasiyet Sonucu</h2>
+        <p id="info"></p>
 
-<!-- RESULT -->
-<div class="card hidden" id="result">
-<h3>YAPAY ZEKA SONUCU</h3>
-<div id="bars"></div>
-</div>
+        <div class="bar"><span>Genel</span><div class="progress"><div id="g"></div></div></div>
+        <div class="bar"><span>Kırmızı Nokta</span><div class="progress"><div id="k"></div></div></div>
+        <div class="bar"><span>2x Dürbün</span><div class="progress"><div id="d2"></div></div></div>
+        <div class="bar"><span>4x Dürbün</span><div class="progress"><div id="d4"></div></div></div>
+        <div class="bar"><span>Serbest Bakış</span><div class="progress"><div id="s"></div></div></div>
+      </div>
+    </div>
 
-</div>
-
+  </div>
 </div>
 
 <script>
-
-let fps=60;
-
-function setFPS(v,btn){
-fps=v;
-document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
-btn.classList.add("active");
+// particles
+const bg = document.getElementById("bg");
+for(let i=0;i<40;i++){
+  let d = document.createElement("div");
+  d.className="dot";
+  d.style.left=Math.random()*100+"%";
+  d.style.top=Math.random()*100+"%";
+  d.style.animationDuration=(3+Math.random()*5)+"s";
+  bg.appendChild(d);
 }
 
-/* HOME -> RESULT */
-function generate(){
-
-document.getElementById("home").classList.add("hidden");
-document.getElementById("result").classList.remove("hidden");
-
-let base = fps==60?150:fps==90?175:195;
-
-let data={
-"Genel":base,
-"Kırmızı Nokta":base-10,
-"2x Dürbün":base-25,
-"4x Dürbün":base-45,
-"Tüfek":base-60,
-"Serbest Bakış":200
-};
-
-let html="";
-
-for(let k in data){
-html+=`
-<div class="bar">
-<div class="top"><span>${k}</span><span>${data[k]}</span></div>
-<div class="track"><div class="fill" style="width:${data[k]/2}%"></div></div>
-</div>
-`;
-}
-
-document.getElementById("bars").innerHTML=html;
-}
-
-/* SIDEBAR NAV */
 function showHome(){
-document.getElementById("home").classList.remove("hidden");
-document.getElementById("result").classList.add("hidden");
+  document.getElementById("home").style.display="block";
+  document.getElementById("result").style.display="none";
 }
 
 function showResult(){
-if(document.getElementById("bars").innerHTML==""){
-generate();
-}else{
-document.getElementById("home").classList.add("hidden");
-document.getElementById("result").classList.remove("hidden");
-}
+  document.getElementById("home").style.display="none";
+  document.getElementById("result").style.display="block";
 }
 
+function rand(max){
+  return Math.floor(Math.random()*max);
+}
+
+function generate(){
+  let device = document.getElementById("device").value;
+  let fps = document.getElementById("fps").value;
+
+  let base = fps == 60 ? 120 : fps == 90 ? 150 : 180;
+
+  let g = rand(base);
+  let k = rand(base);
+  let d2 = rand(base);
+  let d4 = rand(base);
+  let s = rand(200);
+
+  document.getElementById("info").innerText =
+    device + " • " + fps + " FPS";
+
+  document.getElementById("g").style.width=g+"%";
+  document.getElementById("k").style.width=k+"%";
+  document.getElementById("d2").style.width=d2+"%";
+  document.getElementById("d4").style.width=d4+"%";
+  document.getElementById("s").style.width=s+"%";
+
+  showResult();
+}
 </script>
 
 </body>
