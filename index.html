@@ -8,63 +8,62 @@
 <style>
 body{
 margin:0;
+font-family:Arial;
 background:#000;
 color:white;
-font-family:Arial;
 overflow:hidden;
 }
 
-/* stronger neon background */
+/* BACKGROUND */
 .bg{
 position:fixed;
 width:100%;
 height:100%;
 background:
-radial-gradient(circle at 30% 30%, rgba(255,0,0,0.35), transparent 50%),
-radial-gradient(circle at 70% 70%, rgba(255,0,0,0.18), transparent 55%);
-filter: blur(2px);
+radial-gradient(circle at 20% 30%, rgba(255,0,0,0.25), transparent 50%),
+radial-gradient(circle at 80% 70%, rgba(120,0,0,0.25), transparent 55%),
+#000;
 }
 
-/* layout */
-.app{
+/* LAYOUT */
+.container{
 display:flex;
 height:100vh;
 }
 
-/* sidebar (more like video UI) */
+/* SIDEBAR */
 .sidebar{
-width:240px;
-background:rgba(10,10,10,0.98);
-border-right:1px solid rgba(255,0,0,0.25);
+width:220px;
+background:rgba(10,10,10,0.95);
+border-right:1px solid rgba(255,0,0,0.2);
 padding:20px;
 }
 
 .logo{
-font-size:22px;
+font-size:20px;
 font-weight:bold;
-margin-bottom:30px;
-letter-spacing:1px;
+margin-bottom:40px;
 }
+
 .logo span{color:red;}
 
 .nav button{
 width:100%;
 padding:12px;
-margin:8px 0;
-background:#111;
-border:1px solid rgba(255,0,0,0.2);
-color:white;
+margin:10px 0;
+border:none;
 border-radius:10px;
+background:#111;
+color:white;
 cursor:pointer;
-transition:0.2s;
+border:1px solid rgba(255,0,0,0.2);
 }
 
 .nav button:hover{
 background:red;
-transform:scale(1.03);
 }
 
-/* main panel */
+/* MAIN */
 .main{
 flex:1;
 display:flex;
@@ -72,176 +71,116 @@ justify-content:center;
 align-items:center;
 }
 
-.panel{
-width:450px;
-background:rgba(15,15,15,0.95);
+/* CARD */
+.card{
+width:420px;
+background:rgba(15,15,15,0.85);
 border:1px solid rgba(255,0,0,0.25);
-border-radius:18px;
+border-radius:16px;
 padding:20px;
-box-shadow:0 0 35px rgba(255,0,0,0.25);
 backdrop-filter: blur(10px);
+box-shadow:0 0 30px rgba(255,0,0,0.15);
 }
 
+/* INPUT */
 input{
 width:100%;
-padding:13px;
+padding:12px;
 background:#000;
-border:1px solid rgba(255,0,0,0.2);
+border:1px solid rgba(255,0,0,0.25);
+border-radius:10px;
 color:white;
-border-radius:12px;
 margin-top:10px;
 }
 
+/* FPS */
 .fps{
 display:flex;
 gap:10px;
-margin-top:12px;
+margin-top:10px;
 }
 
 .fps button{
 flex:1;
 padding:10px;
-background:#111;
-border:1px solid rgba(255,0,0,0.25);
-color:white;
+border:none;
 border-radius:10px;
+background:#111;
+color:white;
+cursor:pointer;
+border:1px solid rgba(255,0,0,0.2);
 }
 
 .fps button.active{
 background:red;
-box-shadow:0 0 15px red;
+box-shadow:0 0 10px red;
 }
 
-.btn{
+/* BUTTON */
+.gen{
 width:100%;
 margin-top:15px;
 padding:12px;
 border:none;
+border-radius:12px;
 background:linear-gradient(90deg,#ff0000,#8b0000);
 color:white;
 font-weight:bold;
-border-radius:12px;
 cursor:pointer;
 }
 
-/* result bars (more like video) */
-.bar{
-margin:14px 0;
-}
-
-.top{
-display:flex;
-justify-content:space-between;
-font-size:13px;
+.gen:hover{
 opacity:0.9;
 }
-
-.track{
-height:7px;
-background:#222;
-border-radius:20px;
-overflow:hidden;
-margin-top:6px;
-}
-
-.fill{
-height:100%;
-width:0%;
-background:red;
-box-shadow:0 0 12px red;
-transition:1s;
-}
 </style>
+
 </head>
 
 <body>
 
 <div class="bg"></div>
 
-<div class="app">
+<div class="container">
 
+<!-- SIDEBAR -->
 <div class="sidebar">
 <div class="logo">wedzx<span>sensi</span></div>
 
 <div class="nav">
-<button onclick="home()">Home</button>
-<button onclick="gen()">Sensitivity</button>
+<button>Home</button>
+<button>Sensitivity</button>
 </div>
 </div>
 
+<!-- MAIN -->
 <div class="main">
 
-<div class="panel" id="homeBox">
+<div class="card">
 <h3>Device</h3>
-<input id="device" placeholder="iPhone / Redmi / Samsung">
+<input placeholder="iPhone / Redmi / Samsung">
 
 <h3>FPS</h3>
 <div class="fps">
-<button onclick="set(60,this)">60</button>
-<button onclick="set(90,this)">90</button>
-<button onclick="set(120,this)">120</button>
+<button onclick="setFPS(60,this)">60</button>
+<button onclick="setFPS(90,this)">90</button>
+<button onclick="setFPS(120,this)">120</button>
 </div>
 
-<button class="btn" onclick="generate()">GENERATE</button>
-</div>
-
-<div class="panel" id="resultBox" style="display:none;">
-<h3>AI SENSITIVITY</h3>
-<div id="bars"></div>
+<button class="gen">GENERATE</button>
 </div>
 
 </div>
+
 </div>
 
 <script>
-
 let fps=60;
 
-function set(v,btn){
+function setFPS(v,btn){
 fps=v;
 document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
 btn.classList.add("active");
 }
-
-function generate(){
-
-document.getElementById("homeBox").style.display="none";
-document.getElementById("resultBox").style.display="block";
-
-let base = fps==60?150:fps==90?175:195;
-
-let data={
-"General":base,
-"Red Dot":base-8,
-"2x":base-20,
-"4x":base-38,
-"Sniper":base-55,
-"Free Look":200
-};
-
-let html="";
-
-for(let k in data){
-html+=`
-<div class="bar">
-<div class="top"><span>${k}</span><span>${data[k]}</span></div>
-<div class="track"><div class="fill" style="width:${data[k]/2}%"></div></div>
-</div>
-`;
-}
-
-document.getElementById("bars").innerHTML=html;
-}
-
-function home(){
-document.getElementById("homeBox").style.display="block";
-document.getElementById("resultBox").style.display="none";
-}
-
-function gen(){
-generate();
-}
-
 </script>
 
 </body>
