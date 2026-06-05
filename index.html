@@ -14,7 +14,7 @@ color:white;
 overflow:hidden;
 }
 
-/* BACKGROUND (görüntüdeki gibi kırmızı glow) */
+/* BACKGROUND */
 .bg{
 position:fixed;
 width:100%;
@@ -58,20 +58,16 @@ border-radius:10px;
 cursor:pointer;
 }
 
-.sidebar button:hover{
-background:red;
-}
-
-/* MAIN AREA */
+/* MAIN */
 .main{
 flex:1;
 display:flex;
 justify-content:center;
 align-items:flex-start;
-padding-top:80px;
+padding-top:70px;
 }
 
-/* CARD (görüntüdeki panel) */
+/* CARD */
 .card{
 width:420px;
 background:rgba(15,15,15,0.85);
@@ -82,16 +78,11 @@ box-shadow:0 0 25px rgba(255,0,0,0.15);
 backdrop-filter: blur(10px);
 }
 
-h3{
-margin:10px 0;
-}
-
 /* INPUT */
 input{
 width:100%;
 padding:12px;
 border:none;
-outline:none;
 border-radius:10px;
 background:#000;
 color:white;
@@ -120,7 +111,7 @@ background:red;
 box-shadow:0 0 12px red;
 }
 
-/* GENERATE */
+/* BUTTON */
 .generate{
 width:100%;
 margin-top:15px;
@@ -133,9 +124,35 @@ font-weight:bold;
 cursor:pointer;
 }
 
-.generate:hover{
-opacity:0.9;
+/* RESULT PAGE */
+.bar{
+margin:14px 0;
 }
+
+.top{
+display:flex;
+justify-content:space-between;
+font-size:13px;
+}
+
+.track{
+height:6px;
+background:#222;
+border-radius:10px;
+overflow:hidden;
+margin-top:6px;
+}
+
+.fill{
+height:100%;
+width:0%;
+background:red;
+box-shadow:0 0 10px red;
+transition:1s;
+}
+
+/* HIDE */
+.hidden{display:none;}
 </style>
 </head>
 
@@ -149,16 +166,17 @@ opacity:0.9;
 <div class="sidebar">
 <div class="logo">wedzx<span>sensi</span></div>
 
-<button>Home</button>
-<button>Sensitivity</button>
+<button onclick="showHome()">Home</button>
+<button onclick="showResult()">Sensitivity</button>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-<div class="card">
+<!-- HOME -->
+<div class="card" id="home">
 <h3>Device Model</h3>
-<input placeholder="iPhone / Redmi / Samsung">
+<input id="device" placeholder="iPhone / Redmi / Samsung">
 
 <h3>FPS</h3>
 <div class="fps">
@@ -167,7 +185,13 @@ opacity:0.9;
 <button onclick="setFPS(120,this)">120 FPS</button>
 </div>
 
-<button class="generate">AI HASSASİYET OLUŞTUR</button>
+<button class="generate" onclick="generate()">AI HASSASİYET OLUŞTUR</button>
+</div>
+
+<!-- RESULT -->
+<div class="card hidden" id="result">
+<h3>YAPAY ZEKA SONUCU</h3>
+<div id="bars"></div>
 </div>
 
 </div>
@@ -175,6 +199,7 @@ opacity:0.9;
 </div>
 
 <script>
+
 let fps=60;
 
 function setFPS(v,btn){
@@ -182,6 +207,53 @@ fps=v;
 document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
 btn.classList.add("active");
 }
+
+/* HOME -> RESULT */
+function generate(){
+
+document.getElementById("home").classList.add("hidden");
+document.getElementById("result").classList.remove("hidden");
+
+let base = fps==60?150:fps==90?175:195;
+
+let data={
+"Genel":base,
+"Kırmızı Nokta":base-10,
+"2x Dürbün":base-25,
+"4x Dürbün":base-45,
+"Tüfek":base-60,
+"Serbest Bakış":200
+};
+
+let html="";
+
+for(let k in data){
+html+=`
+<div class="bar">
+<div class="top"><span>${k}</span><span>${data[k]}</span></div>
+<div class="track"><div class="fill" style="width:${data[k]/2}%"></div></div>
+</div>
+`;
+}
+
+document.getElementById("bars").innerHTML=html;
+}
+
+/* SIDEBAR NAV */
+function showHome(){
+document.getElementById("home").classList.remove("hidden");
+document.getElementById("result").classList.add("hidden");
+}
+
+function showResult(){
+if(document.getElementById("bars").innerHTML==""){
+generate();
+}else{
+document.getElementById("home").classList.add("hidden");
+document.getElementById("result").classList.remove("hidden");
+}
+}
+
 </script>
 
 </body>
