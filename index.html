@@ -14,83 +14,88 @@ color:white;
 overflow:hidden;
 }
 
-/* BACKGROUND */
+/* BACKGROUND (görüntüdeki gibi kırmızı glow) */
 .bg{
 position:fixed;
 width:100%;
 height:100%;
 background:
-radial-gradient(circle at 20% 30%, rgba(255,0,0,0.25), transparent 50%),
-radial-gradient(circle at 80% 70%, rgba(120,0,0,0.25), transparent 55%),
+radial-gradient(circle at 70% 30%, rgba(255,0,0,0.25), transparent 55%),
+radial-gradient(circle at 30% 80%, rgba(120,0,0,0.25), transparent 60%),
 #000;
 }
 
 /* LAYOUT */
-.container{
+.wrapper{
 display:flex;
 height:100vh;
 }
 
 /* SIDEBAR */
 .sidebar{
-width:220px;
-background:rgba(10,10,10,0.95);
+width:200px;
+background:rgba(10,10,10,0.9);
 border-right:1px solid rgba(255,0,0,0.2);
 padding:20px;
 }
 
 .logo{
-font-size:20px;
+font-size:18px;
 font-weight:bold;
 margin-bottom:40px;
 }
 
 .logo span{color:red;}
 
-.nav button{
+.sidebar button{
 width:100%;
 padding:12px;
 margin:10px 0;
-border:none;
-border-radius:10px;
 background:#111;
-color:white;
-cursor:pointer;
 border:1px solid rgba(255,0,0,0.2);
+color:white;
+border-radius:10px;
+cursor:pointer;
 }
 
-.nav button:hover{
+.sidebar button:hover{
 background:red;
 }
 
-/* MAIN */
+/* MAIN AREA */
 .main{
 flex:1;
 display:flex;
 justify-content:center;
-align-items:center;
+align-items:flex-start;
+padding-top:80px;
 }
 
-/* CARD */
+/* CARD (görüntüdeki panel) */
 .card{
 width:420px;
 background:rgba(15,15,15,0.85);
 border:1px solid rgba(255,0,0,0.25);
-border-radius:16px;
+border-radius:14px;
 padding:20px;
+box-shadow:0 0 25px rgba(255,0,0,0.15);
 backdrop-filter: blur(10px);
-box-shadow:0 0 30px rgba(255,0,0,0.15);
+}
+
+h3{
+margin:10px 0;
 }
 
 /* INPUT */
 input{
 width:100%;
 padding:12px;
-background:#000;
-border:1px solid rgba(255,0,0,0.25);
+border:none;
+outline:none;
 border-radius:10px;
+background:#000;
 color:white;
-margin-top:10px;
+border:1px solid rgba(255,0,0,0.2);
 }
 
 /* FPS */
@@ -103,70 +108,66 @@ margin-top:10px;
 .fps button{
 flex:1;
 padding:10px;
-border:none;
-border-radius:10px;
 background:#111;
-color:white;
-cursor:pointer;
 border:1px solid rgba(255,0,0,0.2);
+color:white;
+border-radius:10px;
+cursor:pointer;
 }
 
 .fps button.active{
 background:red;
-box-shadow:0 0 10px red;
+box-shadow:0 0 12px red;
 }
 
-/* BUTTON */
-.gen{
+/* GENERATE */
+.generate{
 width:100%;
 margin-top:15px;
 padding:12px;
 border:none;
 border-radius:12px;
-background:linear-gradient(90deg,#ff0000,#8b0000);
+background:red;
 color:white;
 font-weight:bold;
 cursor:pointer;
 }
 
-.gen:hover{
+.generate:hover{
 opacity:0.9;
 }
 </style>
-
 </head>
 
 <body>
 
 <div class="bg"></div>
 
-<div class="container">
+<div class="wrapper">
 
 <!-- SIDEBAR -->
 <div class="sidebar">
 <div class="logo">wedzx<span>sensi</span></div>
 
-<div class="nav">
 <button>Home</button>
 <button>Sensitivity</button>
-</div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
 <div class="card">
-<h3>Device</h3>
+<h3>Device Model</h3>
 <input placeholder="iPhone / Redmi / Samsung">
 
 <h3>FPS</h3>
 <div class="fps">
-<button onclick="setFPS(60,this)">60</button>
-<button onclick="setFPS(90,this)">90</button>
-<button onclick="setFPS(120,this)">120</button>
+<button onclick="setFPS(60,this)">60 FPS</button>
+<button onclick="setFPS(90,this)">90 FPS</button>
+<button onclick="setFPS(120,this)">120 FPS</button>
 </div>
 
-<button class="gen">GENERATE</button>
+<button class="generate">AI HASSASİYET OLUŞTUR</button>
 </div>
 
 </div>
