@@ -8,67 +8,63 @@
 <style>
 body{
 margin:0;
-background:#050505;
-font-family:Arial;
+background:#000;
 color:white;
+font-family:Arial;
 overflow:hidden;
 }
 
-/* BACKGROUND */
+/* stronger neon background */
 .bg{
 position:fixed;
 width:100%;
 height:100%;
 background:
-radial-gradient(circle at 20% 20%, rgba(255,0,0,0.25), transparent 45%),
-radial-gradient(circle at 80% 80%, rgba(255,0,0,0.15), transparent 45%);
-z-index:-1;
-animation:move 6s infinite alternate;
+radial-gradient(circle at 30% 30%, rgba(255,0,0,0.35), transparent 50%),
+radial-gradient(circle at 70% 70%, rgba(255,0,0,0.18), transparent 55%);
+filter: blur(2px);
 }
 
-@keyframes move{
-from{transform:scale(1);}
-to{transform:scale(1.1);}
-}
-
-/* APP */
+/* layout */
 .app{
 display:flex;
 height:100vh;
 }
 
-/* SIDEBAR */
-.side{
-width:220px;
-background:#0b0b0b;
-border-right:1px solid rgba(255,0,0,0.2);
+/* sidebar (more like video UI) */
+.sidebar{
+width:240px;
+background:rgba(10,10,10,0.98);
+border-right:1px solid rgba(255,0,0,0.25);
 padding:20px;
 }
 
 .logo{
-font-size:20px;
+font-size:22px;
 font-weight:bold;
 margin-bottom:30px;
+letter-spacing:1px;
 }
-
 .logo span{color:red;}
 
-.menu button{
+.nav button{
 width:100%;
+padding:12px;
 margin:8px 0;
-padding:10px;
 background:#111;
 border:1px solid rgba(255,0,0,0.2);
 color:white;
-border-radius:8px;
+border-radius:10px;
 cursor:pointer;
+transition:0.2s;
 }
 
-.menu button:hover{
+.nav button:hover{
 background:red;
+transform:scale(1.03);
 }
 
-/* MAIN */
+/* main panel */
 .main{
 flex:1;
 display:flex;
@@ -76,86 +72,84 @@ justify-content:center;
 align-items:center;
 }
 
-/* CARD */
-.card{
-width:420px;
-background:#111;
+.panel{
+width:450px;
+background:rgba(15,15,15,0.95);
+border:1px solid rgba(255,0,0,0.25);
+border-radius:18px;
 padding:20px;
-border-radius:15px;
-border:1px solid rgba(255,0,0,0.2);
-box-shadow:0 0 25px rgba(255,0,0,0.2);
+box-shadow:0 0 35px rgba(255,0,0,0.25);
+backdrop-filter: blur(10px);
 }
 
-/* INPUT */
 input{
 width:100%;
-padding:12px;
+padding:13px;
 background:#000;
-border:none;
-border-radius:10px;
+border:1px solid rgba(255,0,0,0.2);
 color:white;
+border-radius:12px;
 margin-top:10px;
 }
 
-/* FPS */
 .fps{
 display:flex;
-gap:8px;
-margin-top:10px;
+gap:10px;
+margin-top:12px;
 }
 
 .fps button{
 flex:1;
 padding:10px;
-background:#222;
-border:none;
+background:#111;
+border:1px solid rgba(255,0,0,0.25);
 color:white;
-border-radius:8px;
-cursor:pointer;
+border-radius:10px;
 }
 
 .fps button.active{
 background:red;
+box-shadow:0 0 15px red;
 }
 
-/* BUTTON */
 .btn{
 width:100%;
 margin-top:15px;
 padding:12px;
-background:red;
 border:none;
+background:linear-gradient(90deg,#ff0000,#8b0000);
 color:white;
 font-weight:bold;
-border-radius:10px;
+border-radius:12px;
 cursor:pointer;
 }
 
-/* RESULT */
+/* result bars (more like video) */
 .bar{
-margin:12px 0;
+margin:14px 0;
 }
 
-.label{
+.top{
 display:flex;
 justify-content:space-between;
 font-size:13px;
+opacity:0.9;
 }
 
-.line{
-height:6px;
+.track{
+height:7px;
 background:#222;
-border-radius:10px;
+border-radius:20px;
 overflow:hidden;
-margin-top:5px;
+margin-top:6px;
 }
 
 .fill{
 height:100%;
-background:red;
 width:0%;
+background:red;
+box-shadow:0 0 12px red;
 transition:1s;
-box-shadow:0 0 10px red;
 }
 </style>
 </head>
@@ -166,38 +160,34 @@ box-shadow:0 0 10px red;
 
 <div class="app">
 
-<!-- SIDEBAR -->
-<div class="side">
+<div class="sidebar">
 <div class="logo">wedzx<span>sensi</span></div>
 
-<div class="menu">
-<button onclick="showHome()">Ana Sayfa</button>
-<button onclick="generate()">Hassasiyet</button>
+<div class="nav">
+<button onclick="home()">Home</button>
+<button onclick="gen()">Sensitivity</button>
 </div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
-<div class="card" id="home">
-<h3>Cihaz</h3>
-<input id="device" placeholder="iPhone / Redmi">
+<div class="panel" id="homeBox">
+<h3>Device</h3>
+<input id="device" placeholder="iPhone / Redmi / Samsung">
 
 <h3>FPS</h3>
 <div class="fps">
-<button onclick="setFPS(60,this)">60</button>
-<button onclick="setFPS(90,this)">90</button>
-<button onclick="setFPS(120,this)">120</button>
+<button onclick="set(60,this)">60</button>
+<button onclick="set(90,this)">90</button>
+<button onclick="set(120,this)">120</button>
 </div>
 
-<button class="btn" onclick="generate()">Oluştur</button>
+<button class="btn" onclick="generate()">GENERATE</button>
 </div>
 
-<div class="card" id="result" style="display:none">
-
-<h3>AI Hassasiyet</h3>
+<div class="panel" id="resultBox" style="display:none;">
+<h3>AI SENSITIVITY</h3>
 <div id="bars"></div>
-
 </div>
 
 </div>
@@ -207,7 +197,7 @@ box-shadow:0 0 10px red;
 
 let fps=60;
 
-function setFPS(v,btn){
+function set(v,btn){
 fps=v;
 document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
 btn.classList.add("active");
@@ -215,18 +205,18 @@ btn.classList.add("active");
 
 function generate(){
 
-document.getElementById("home").style.display="none";
-document.getElementById("result").style.display="block";
+document.getElementById("homeBox").style.display="none";
+document.getElementById("resultBox").style.display="block";
 
-let base = fps==60?150:fps==90?170:190;
+let base = fps==60?150:fps==90?175:195;
 
 let data={
-"Genel":base,
-"Kırmızı Nokta":base-10,
-"2x":base-25,
-"4x":base-45,
-"Tüfek":base-60,
-"Serbest":200
+"General":base,
+"Red Dot":base-8,
+"2x":base-20,
+"4x":base-38,
+"Sniper":base-55,
+"Free Look":200
 };
 
 let html="";
@@ -234,8 +224,8 @@ let html="";
 for(let k in data){
 html+=`
 <div class="bar">
-<div class="label"><span>${k}</span><span>${data[k]}</span></div>
-<div class="line"><div class="fill" style="width:${data[k]/2}%"></div></div>
+<div class="top"><span>${k}</span><span>${data[k]}</span></div>
+<div class="track"><div class="fill" style="width:${data[k]/2}%"></div></div>
 </div>
 `;
 }
@@ -243,9 +233,13 @@ html+=`
 document.getElementById("bars").innerHTML=html;
 }
 
-function showHome(){
-document.getElementById("home").style.display="block";
-document.getElementById("result").style.display="none";
+function home(){
+document.getElementById("homeBox").style.display="block";
+document.getElementById("resultBox").style.display="none";
+}
+
+function gen(){
+generate();
 }
 
 </script>
