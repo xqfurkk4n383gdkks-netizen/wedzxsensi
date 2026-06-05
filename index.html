@@ -6,44 +6,43 @@
 <title>wedzxsensi</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-font-family:Arial;
-box-sizing:border-box;
-}
-
 body{
+margin:0;
 background:#050505;
+font-family:Arial;
 color:white;
 overflow:hidden;
 }
 
-/* BACKGROUND GRID + GLOW */
+/* BACKGROUND */
 .bg{
 position:fixed;
 width:100%;
 height:100%;
 background:
-radial-gradient(circle at 20% 20%, rgba(255,0,0,0.25), transparent 40%),
-radial-gradient(circle at 80% 80%, rgba(255,0,0,0.15), transparent 40%);
-filter: blur(0px);
-z-index:-2;
+radial-gradient(circle at 20% 20%, rgba(255,0,0,0.25), transparent 45%),
+radial-gradient(circle at 80% 80%, rgba(255,0,0,0.15), transparent 45%);
+z-index:-1;
+animation:move 6s infinite alternate;
 }
 
-/* LAYOUT */
+@keyframes move{
+from{transform:scale(1);}
+to{transform:scale(1.1);}
+}
+
+/* APP */
 .app{
 display:flex;
 height:100vh;
 }
 
 /* SIDEBAR */
-.sidebar{
+.side{
 width:220px;
-background:rgba(10,10,10,0.95);
+background:#0b0b0b;
 border-right:1px solid rgba(255,0,0,0.2);
 padding:20px;
-box-shadow:0 0 20px rgba(255,0,0,0.1);
 }
 
 .logo{
@@ -54,20 +53,15 @@ margin-bottom:30px;
 
 .logo span{color:red;}
 
-.menu{
-display:flex;
-flex-direction:column;
-gap:10px;
-}
-
 .menu button{
+width:100%;
+margin:8px 0;
 padding:10px;
 background:#111;
 border:1px solid rgba(255,0,0,0.2);
 color:white;
 border-radius:8px;
 cursor:pointer;
-transition:0.2s;
 }
 
 .menu button:hover{
@@ -85,28 +79,22 @@ align-items:center;
 /* CARD */
 .card{
 width:420px;
-background:rgba(15,15,15,0.9);
-border:1px solid rgba(255,0,0,0.2);
-border-radius:15px;
+background:#111;
 padding:20px;
+border-radius:15px;
+border:1px solid rgba(255,0,0,0.2);
 box-shadow:0 0 25px rgba(255,0,0,0.2);
-}
-
-.title{
-font-size:18px;
-margin-bottom:15px;
 }
 
 /* INPUT */
 input{
 width:100%;
 padding:12px;
+background:#000;
 border:none;
 border-radius:10px;
-background:#111;
 color:white;
-outline:none;
-margin-bottom:10px;
+margin-top:10px;
 }
 
 /* FPS */
@@ -119,8 +107,8 @@ margin-top:10px;
 .fps button{
 flex:1;
 padding:10px;
-background:#111;
-border:1px solid rgba(255,0,0,0.2);
+background:#222;
+border:none;
 color:white;
 border-radius:8px;
 cursor:pointer;
@@ -135,8 +123,8 @@ background:red;
 width:100%;
 margin-top:15px;
 padding:12px;
-border:none;
 background:red;
+border:none;
 color:white;
 font-weight:bold;
 border-radius:10px;
@@ -144,13 +132,8 @@ cursor:pointer;
 }
 
 /* RESULT */
-.result{
-display:none;
-width:420px;
-}
-
 .bar{
-margin:10px 0;
+margin:12px 0;
 }
 
 .label{
@@ -184,25 +167,23 @@ box-shadow:0 0 10px red;
 <div class="app">
 
 <!-- SIDEBAR -->
-<div class="sidebar">
+<div class="side">
 <div class="logo">wedzx<span>sensi</span></div>
 
 <div class="menu">
 <button onclick="showHome()">Ana Sayfa</button>
-<button onclick="showResult()">Hassasiyet</button>
+<button onclick="generate()">Hassasiyet</button>
 </div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-<!-- HOME -->
 <div class="card" id="home">
-<div class="title">Cihaz Seç</div>
+<h3>Cihaz</h3>
+<input id="device" placeholder="iPhone / Redmi">
 
-<input id="device" placeholder="iPhone / Redmi / Samsung">
-
-<div class="title">FPS</div>
+<h3>FPS</h3>
 <div class="fps">
 <button onclick="setFPS(60,this)">60</button>
 <button onclick="setFPS(90,this)">90</button>
@@ -212,11 +193,9 @@ box-shadow:0 0 10px red;
 <button class="btn" onclick="generate()">Oluştur</button>
 </div>
 
-<!-- RESULT -->
-<div class="card result" id="result">
+<div class="card" id="result" style="display:none">
 
-<div class="title">Hassasiyet Menüsü</div>
-
+<h3>AI Hassasiyet</h3>
 <div id="bars"></div>
 
 </div>
@@ -245,8 +224,8 @@ let data={
 "Genel":base,
 "Kırmızı Nokta":base-10,
 "2x":base-25,
-"4x":base-40,
-"Tüfek":base-55,
+"4x":base-45,
+"Tüfek":base-60,
 "Serbest":200
 };
 
@@ -267,11 +246,6 @@ document.getElementById("bars").innerHTML=html;
 function showHome(){
 document.getElementById("home").style.display="block";
 document.getElementById("result").style.display="none";
-}
-
-function showResult(){
-document.getElementById("home").style.display="none";
-document.getElementById("result").style.display="block";
 }
 
 </script>
