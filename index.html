@@ -6,9 +6,9 @@
 <title>wedzxsensi</title>
 
 <style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+
 body{
-margin:0;
-font-family:Arial;
 background:#000;
 color:white;
 overflow:hidden;
@@ -29,11 +29,11 @@ width:5px;
 height:5px;
 background:red;
 border-radius:50%;
-opacity:.6;
-animation:move 6s infinite linear;
+opacity:.5;
+animation:float 6s infinite linear;
 }
 
-@keyframes move{
+@keyframes float{
 0%{transform:translateY(0);opacity:0}
 50%{opacity:1}
 100%{transform:translateY(-900px);opacity:0}
@@ -45,57 +45,73 @@ display:flex;
 height:100vh;
 }
 
-/* SIDEBAR */
-.side{
-width:200px;
+/* SIDEBAR FIX */
+.sidebar{
+width:220px;
 background:#0a0a0a;
+border-right:1px solid #220000;
 padding:20px;
-border-right:1px solid red;
+position:fixed;
+left:0;
+top:0;
+bottom:0;
 }
 
 .logo{
 color:red;
 font-size:20px;
-margin-bottom:20px;
+margin-bottom:30px;
+font-weight:bold;
 }
 
 .menu{
-padding:10px;
-background:#111;
+padding:12px;
 margin:10px 0;
-border-radius:8px;
-cursor:pointer;
+background:#111;
 border:1px solid #222;
+border-radius:10px;
+cursor:pointer;
+transition:.2s;
 }
 
 .menu:hover{
 border-color:red;
 }
 
-/* MAIN */
+/* MAIN CENTER FIX */
 .main{
-flex:1;
-padding:40px;
+margin-left:220px;
+width:100%;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
 }
 
 /* CARD */
 .card{
+width:350px;
 background:#111;
 padding:20px;
 border-radius:15px;
 border:1px solid #222;
-max-width:500px;
+box-shadow:0 0 20px rgba(255,0,0,0.1);
+}
+
+h2{
+margin:10px 0;
 }
 
 /* INPUT */
 input,select{
 width:100%;
-padding:10px;
+padding:12px;
 margin:10px 0;
-background:black;
+background:#000;
 border:1px solid #333;
-color:white;
 border-radius:8px;
+color:white;
+outline:none;
 }
 
 /* BUTTON */
@@ -104,9 +120,9 @@ width:100%;
 padding:12px;
 background:red;
 border:none;
+border-radius:10px;
 color:white;
 font-weight:bold;
-border-radius:10px;
 cursor:pointer;
 }
 
@@ -114,13 +130,9 @@ button:hover{
 background:#ff1b1b;
 }
 
-/* RESULT */
+/* RESULT BAR */
 .bar{
 margin:10px 0;
-}
-
-.bar span{
-font-size:14px;
 }
 
 .line{
@@ -133,8 +145,8 @@ margin-top:5px;
 
 .fill{
 height:100%;
-background:red;
 width:0%;
+background:red;
 transition:1s;
 }
 </style>
@@ -147,17 +159,18 @@ transition:1s;
 <div class="container">
 
 <!-- SIDEBAR -->
-<div class="side">
+<div class="sidebar">
 <div class="logo">wedzxsensi</div>
-<div class="menu" onclick="home()">Home</div>
-<div class="menu" onclick="resultPage()">Sensitivity</div>
+
+<div class="menu" onclick="showHome()">Home</div>
+<div class="menu" onclick="showResult()">Sensitivity</div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
 <!-- HOME -->
-<div id="homePage">
+<div id="home">
 <div class="card">
 <h2>Device</h2>
 <input id="device" placeholder="iPhone / Redmi / Samsung">
@@ -174,7 +187,7 @@ transition:1s;
 </div>
 
 <!-- RESULT -->
-<div id="resultPage" style="display:none;">
+<div id="result" style="display:none;">
 <div class="card">
 <h2>AI Result</h2>
 <p id="info"></p>
@@ -192,9 +205,9 @@ transition:1s;
 
 <script>
 
-/* BACKGROUND DOTS */
+/* BACKGROUND */
 const bg=document.getElementById("bg");
-for(let i=0;i<50;i++){
+for(let i=0;i<40;i++){
 let d=document.createElement("div");
 d.className="dot";
 d.style.left=Math.random()*100+"%";
@@ -204,14 +217,14 @@ bg.appendChild(d);
 }
 
 /* NAV */
-function home(){
-document.getElementById("homePage").style.display="block";
-document.getElementById("resultPage").style.display="none";
+function showHome(){
+document.getElementById("home").style.display="block";
+document.getElementById("result").style.display="none";
 }
 
-function resultPage(){
-document.getElementById("homePage").style.display="none";
-document.getElementById("resultPage").style.display="block";
+function showResult(){
+document.getElementById("home").style.display="none";
+document.getElementById("result").style.display="block";
 }
 
 /* RANDOM */
@@ -227,24 +240,17 @@ let fps=document.getElementById("fps").value;
 
 let base = fps=="60"?120:fps=="90"?150:200;
 
-let g=r(base);
-let k=r(base);
-let d2=r(base);
-let d4=r(base);
-let s=r(200);
-
-/* TEXT */
 document.getElementById("info").innerText=device+" • "+fps+" FPS";
 
-/* FILL */
-document.getElementById("g").style.width=g+"%";
-document.getElementById("k").style.width=k+"%";
-document.getElementById("d2").style.width=d2+"%";
-document.getElementById("d4").style.width=d4+"%";
-document.getElementById("s").style.width=s+"%";
+document.getElementById("g").style.width=r(base)+"%";
+document.getElementById("k").style.width=r(base)+"%";
+document.getElementById("d2").style.width=r(base)+"%";
+document.getElementById("d4").style.width=r(base)+"%";
+document.getElementById("s").style.width=r(200)+"%";
 
-resultPage();
+showResult();
 }
+
 </script>
 
 </body>
