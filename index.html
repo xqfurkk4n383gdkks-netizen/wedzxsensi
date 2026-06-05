@@ -4,10 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>wedzxsensi</title>
-
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="bg"></div>
@@ -16,17 +14,17 @@
 
 <div class="card">
 
-  <h3>CİHAZ MODELİ</h3>
-  <input id="device" placeholder="Örn. iPhone 17 Pro Max">
+<h3>CİHAZ MODELİ</h3>
+<input id="device" placeholder="iPhone / Redmi / Samsung">
 
-  <h3>FPS</h3>
-  <div class="fps">
-    <button onclick="setFPS(60,this)">60 FPS</button>
-    <button onclick="setFPS(90,this)">90 FPS</button>
-    <button onclick="setFPS(120,this)">120 FPS</button>
-  </div>
+<h3>FPS SEÇ</h3>
+<div class="fps">
+<button onclick="setFPS(60,this)">60 FPS</button>
+<button onclick="setFPS(90,this)">90 FPS</button>
+<button onclick="setFPS(120,this)">120 FPS</button>
+</div>
 
-  <button class="mainbtn" onclick="go()">AI HASSASİYET OLUŞTUR</button>
+<button class="mainbtn" onclick="go()">AI HASSASİYET OLUŞTUR</button>
 
 </div>
 
@@ -34,48 +32,47 @@
 let fps = 60;
 
 function setFPS(v,btn){
-  fps = v;
-  document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
+fps = v;
+document.querySelectorAll(".fps button").forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
 }
 
 function go(){
-  localStorage.setItem("device",document.getElementById("device").value);
-  localStorage.setItem("fps",fps);
-  window.location.href="result.html";
+localStorage.setItem("device",document.getElementById("device").value);
+localStorage.setItem("fps",fps);
+window.location.href="result.html";
 }
 </script>
 
 </body>
-</html><!DOCTYPE html>
+</html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sonuç</title>
-
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="bg"></div>
 
 <div class="logo">wedzx<span>sensi</span></div>
 
-<div class="card result">
+<div class="card">
 
-  <h2>YAPAY ZEKA SONUCU</h2>
-  <p id="info"></p>
+<h2>AI HASSASİYET</h2>
+<p id="info"></p>
 
-  <div class="bar">Genel <span id="v1"></span><div class="line"><div id="b1"></div></div></div>
-  <div class="bar">Kırmızı Nokta <span id="v2"></span><div class="line"><div id="b2"></div></div></div>
-  <div class="bar">2x Dürbün <span id="v3"></span><div class="line"><div id="b3"></div></div></div>
-  <div class="bar">4x Dürbün <span id="v4"></span><div class="line"><div id="b4"></div></div></div>
-  <div class="bar">Tüfek Dürbünü <span id="v5"></span><div class="line"><div id="b5"></div></div></div>
-  <div class="bar">Serbest Bakış <span id="v6"></span><div class="line"><div id="b6"></div></div></div>
+<div class="bar">Genel <span id="v1"></span><div class="line"><div id="b1"></div></div></div>
+<div class="bar">Kırmızı Nokta <span id="v2"></span><div class="line"><div id="b2"></div></div></div>
+<div class="bar">2x <span id="v3"></span><div class="line"><div id="b3"></div></div></div>
+<div class="bar">4x <span id="v4"></span><div class="line"><div id="b4"></div></div></div>
+<div class="bar">Tüfek <span id="v5"></span><div class="line"><div id="b5"></div></div></div>
+<div class="bar">Serbest <span id="v6"></span><div class="line"><div id="b6"></div></div></div>
 
-  <button class="copy" onclick="copy()">KOPYALA</button>
+<button class="mainbtn" onclick="copy()">KOPYALA</button>
 
 </div>
 
@@ -83,44 +80,41 @@ function go(){
 let device = localStorage.getItem("device") || "Bilinmiyor";
 let fps = localStorage.getItem("fps") || 60;
 
-document.getElementById("info").innerText = device + " • " + fps + " FPS";
+document.getElementById("info").innerText =
+device + " • " + fps + " FPS";
 
-let base = fps == 60 ? 150 : fps == 90 ? 170 : 190;
+let base = fps==60 ? 150 : fps==90 ? 170 : 190;
 
 let data = [
- base,
- base-10,
- base-25,
- base-45,
- base-60,
- 200
+base,
+base-10,
+base-25,
+base-45,
+base-60,
+200
 ];
 
 for(let i=1;i<=6;i++){
- document.getElementById("v"+i).innerText = data[i-1];
- document.getElementById("b"+i).style.width = data[i-1] + "%";
+document.getElementById("v"+i).innerText = data[i-1];
+document.getElementById("b"+i).style.width = data[i-1] + "%";
 }
 
 function copy(){
- let text =
- `Genel: ${data[0]}
-Kırmızı Nokta: ${data[1]}
-2x: ${data[2]}
-4x: ${data[3]}
-Tüfek: ${data[4]}
-Serbest: ${data[5]}`;
-
- navigator.clipboard.writeText(text);
- alert("Kopyalandı!");
+navigator.clipboard.writeText(
+`Genel:${data[0]} | Red:${data[1]} | 2x:${data[2]} | 4x:${data[3]} | Tüfek:${data[4]} | Serbest:${data[5]}`
+);
+alert("Kopyalandı!");
 }
 </script>
 
 </body>
-</html>body{
+</html>
+body{
 margin:0;
 font-family:Arial;
 background:black;
 color:white;
+overflow-x:hidden;
 }
 
 .bg{
@@ -190,11 +184,11 @@ border:none;
 color:white;
 border-radius:10px;
 font-weight:bold;
+cursor:pointer;
 }
 
 .bar{
 margin:12px 0;
-font-size:14px;
 }
 
 .line{
@@ -209,14 +203,5 @@ margin-top:5px;
 height:100%;
 background:red;
 width:0%;
-}
-
-.copy{
-width:100%;
-margin-top:15px;
-padding:10px;
-background:red;
-border:none;
-color:white;
-border-radius:10px;
+transition:1s;
 }
