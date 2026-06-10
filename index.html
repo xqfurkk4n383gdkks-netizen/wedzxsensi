@@ -1,82 +1,146 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-<meta charset="utf-8">
-<title>Sensitivity</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>wedzXsensi AI</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#000;color:#fff;overflow:hidden;display:flex;justify-content:center;align-items:center;height:100vh}
+
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1}
+
+.container{width:90%;max-width:380px;background:rgba(0,0,0,.85);border:1px solid red;border-radius:20px;padding:20px}
+
+.logo{text-align:center;font-size:28px;font-weight:900;text-shadow:0 0 10px red}
+
+.btn{width:100%;padding:12px;margin:8px 0;background:#111;color:#fff;border:1px solid red;border-radius:10px}
+
+.hidden{display:none}
+
+.resultItem{display:flex;justify-content:space-between;padding:10px;background:#111;margin:5px 0;border-radius:10px}
+.value{color:red;font-weight:bold}
+</style>
 </head>
+
 <body>
 
-<button onclick="selectDevice('iPhone')">iPhone</button>
-<button onclick="selectDevice('Android')">Android</button>
-<button onclick="generate()">Generate</button>
+<canvas id="bg"></canvas>
 
-<h3 id="general"></h3>
-<h3 id="red"></h3>
-<h3 id="x2"></h3>
-<h3 id="x4"></h3>
-<h3 id="sniper"></h3>
-<h3 id="free"></h3>
-<h3 id="dpi"></h3>
-<h3 id="fire"></h3>
+<div class="container">
+
+<div class="logo">wedzXsensi</div>
+
+<div id="step1">
+<button class="btn" onclick="selectDevice('Android')">Android</button>
+<button class="btn" onclick="selectDevice('iPhone')">iPhone</button>
+</div>
+
+<div id="step2" class="hidden">
+<button class="btn" onclick="selectStyle('Rush')">Rush</button>
+<button class="btn" onclick="selectStyle('Range')">Range</button>
+</div>
+
+<div id="step3" class="hidden">
+<button class="btn" onclick="selectFinger(2)">2 Parmak</button>
+<button class="btn" onclick="selectFinger(3)">3 Parmak</button>
+<button class="btn" onclick="selectFinger(4)">4 Parmak</button>
+</div>
+
+<div id="step4" class="hidden">
+<button class="btn" onclick="generate()">Hesapla</button>
+</div>
+
+<div id="result" class="hidden">
+
+<div class="resultItem"><span>Genel</span><span id="general"></span></div>
+<div class="resultItem"><span>Kırmızı</span><span id="red"></span></div>
+<div class="resultItem"><span>2x</span><span id="x2"></span></div>
+<div class="resultItem"><span>4x</span><span id="x4"></span></div>
+<div class="resultItem"><span>Sniper</span><span id="sniper"></span></div>
+<div class="resultItem"><span>Free</span><span id="free"></span></div>
+<div class="resultItem"><span>DPI</span><span id="dpi"></span></div>
+<div class="resultItem"><span>Fire</span><span id="fire"></span></div>
+
+</div>
+
+</div>
 
 <script>
 
-let device = "";
-let style = "Rush";
-let finger = 4;
+let device="",style="",finger=2;
 
-function selectDevice(v){
-  device = v;
-}
+function selectDevice(v){device=v;document.getElementById("step1").classList.add("hidden");document.getElementById("step2").classList.remove("hidden")}
+function selectStyle(v){style=v;document.getElementById("step2").classList.add("hidden");document.getElementById("step3").classList.remove("hidden")}
+function selectFinger(v){finger=v;document.getElementById("step3").classList.add("hidden");document.getElementById("step4").classList.remove("hidden")}
 
-function rand(min,max){
-  return Math.floor(Math.random()*(max-min+1))+min;
-}
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
 
 function generate(){
 
-let general, red, x2, x4, sniper, free, dpi, fire;
+document.getElementById("step4").classList.add("hidden");
+document.getElementById("result").classList.remove("hidden");
 
-if(device === "iPhone"){
+if(device==="iPhone"){
 
-  general = 100 + rand(0,6);
-  red     = 95  + rand(0,6);
-  x2      = 85  + rand(0,6);
-  x4      = 75  + rand(0,6);
-  sniper  = 60  + rand(0,6);
-  free    = 105 + rand(0,6);
-  dpi     = 500 + rand(0,21);
-  fire    = 45  + rand(0,4);
+document.getElementById("general").innerText=100+rand(0,10);
+document.getElementById("red").innerText=95+rand(0,10);
+document.getElementById("x2").innerText=85+rand(0,10);
+document.getElementById("x4").innerText=75+rand(0,10);
+document.getElementById("sniper").innerText=60+rand(0,10);
+document.getElementById("free").innerText=100+rand(0,10);
+document.getElementById("dpi").innerText=500+rand(0,50);
+document.getElementById("fire").innerText=45+rand(0,5)+"%";
 
-}else{
+return;
+}
 
-  let base = 155;
+let base=155;
+if(style==="Rush")base+=10;
+if(style==="Range")base-=5;
+if(finger===4)base+=5;
 
-  if(style==="Rush") base+=10;
-  if(style==="Range") base-=5;
-  if(finger===4) base+=5;
-
-  general = Math.min(200, base+rand(0,10));
-  red     = Math.min(200, base+rand(-5,10));
-  x2      = Math.min(200, base-10+rand(0,10));
-  x4      = Math.min(200, base-20+rand(0,10));
-  sniper  = Math.min(200, base-30+rand(0,10));
-  free    = Math.min(200, base+rand(-10,10));
-  dpi     = rand(500,800);
-  fire    = rand(45,65);
+document.getElementById("general").innerText=Math.min(200,base+rand(0,10));
+document.getElementById("red").innerText=Math.min(200,base+rand(-5,10));
+document.getElementById("x2").innerText=Math.min(200,base-10+rand(0,10));
+document.getElementById("x4").innerText=Math.min(200,base-20+rand(0,10));
+document.getElementById("sniper").innerText=Math.min(200,base-30+rand(0,10));
+document.getElementById("free").innerText=Math.min(200,base+rand(-10,10));
+document.getElementById("dpi").innerText=rand(500,800);
+document.getElementById("fire").innerText=rand(45,65)+"%";
 
 }
 
-document.getElementById("general").innerText = general;
-document.getElementById("red").innerText = red;
-document.getElementById("x2").innerText = x2;
-document.getElementById("x4").innerText = x4;
-document.getElementById("sniper").innerText = sniper;
-document.getElementById("free").innerText = free;
-document.getElementById("dpi").innerText = dpi;
-document.getElementById("fire").innerText = fire + "%";
+/* KIRMIZI NOKTALAR */
+const canvas=document.getElementById("bg");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
 
+let dots=[];
+for(let i=0;i<80;i++){
+dots.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*2,vy:(Math.random()-.5)*2,r:2});
 }
+
+function animate(){
+ctx.fillStyle="black";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+for(let d of dots){
+d.x+=d.vx;d.y+=d.vy;
+if(d.x<0||d.x>canvas.width)d.vx*=-1;
+if(d.y<0||d.y>canvas.height)d.vy*=-1;
+
+ctx.fillStyle="red";
+ctx.beginPath();
+ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+ctx.fill();
+}
+
+requestAnimationFrame(animate);
+}
+animate();
 
 </script>
 
