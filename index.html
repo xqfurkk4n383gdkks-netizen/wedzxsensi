@@ -1,257 +1,71 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>wedzXsensi AI</title>
-
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:#000;
-color:white;
-overflow:hidden;
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:100vh;
-}
-
-canvas{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:-1;
-}
-
-.container{
-width:90%;
-max-width:380px;
-background:rgba(0,0,0,.85);
-border:1px solid rgba(255,0,0,.5);
-border-radius:20px;
-padding:20px;
-backdrop-filter:blur(10px);
-box-shadow:0 0 20px rgba(255,0,0,.4);
-}
-
-.logo{
-text-align:center;
-font-size:32px;
-font-weight:900;
-margin-bottom:15px;
-text-shadow:0 0 10px red,0 0 20px red;
-}
-
-.progress{
-width:100%;
-height:8px;
-background:#111;
-border-radius:999px;
-overflow:hidden;
-margin-bottom:15px;
-}
-
-.progressFill{
-height:100%;
-width:25%;
-background:red;
-box-shadow:0 0 15px red;
-transition:.4s;
-}
-
-.step h2{
-text-align:center;
-margin-bottom:15px;
-}
-
-.btn{
-width:100%;
-padding:14px;
-margin-bottom:10px;
-background:#111;
-color:white;
-border:1px solid rgba(255,0,0,.4);
-border-radius:14px;
-cursor:pointer;
-font-weight:bold;
-}
-
-.btn:hover{
-box-shadow:0 0 15px red;
-}
-
-.hidden{
-display:none;
-}
-
-.resultItem{
-display:flex;
-justify-content:space-between;
-padding:12px;
-margin-bottom:8px;
-background:#111;
-border-radius:12px;
-border:1px solid rgba(255,0,0,.2);
-}
-
-.value{
-color:#ff4040;
-font-weight:bold;
-}
-
-</style>
+<meta charset="utf-8">
+<title>Sensitivity</title>
 </head>
 <body>
 
-<canvas id="bg"></canvas>
+<button onclick="selectDevice('iPhone')">iPhone</button>
+<button onclick="selectDevice('Android')">Android</button>
+<button onclick="generate()">Generate</button>
 
-<div class="container">
-
-<div class="logo">wedzXsensi</div>
-
-<div class="progress">
-<div class="progressFill" id="progress"></div>
-</div>
-
-<div id="step1" class="step">
-<h2>Cihazını Seç</h2>
-
-<button class="btn" onclick="selectDevice('Android')">Android</button>
-<button class="btn" onclick="selectDevice('iPhone')">iPhone</button>
-</div>
-
-<div id="step2" class="step hidden">
-<h2>Oyun Tarzın</h2>
-
-<button class="btn" onclick="selectStyle('Rush')">Rushçu</button>
-<button class="btn" onclick="selectStyle('Balance')">Dengeli</button>
-<button class="btn" onclick="selectStyle('Range')">Uzun Menzil</button>
-</div>
-
-<div id="step3" class="step hidden">
-<h2>Parmak Sayısı</h2>
-
-<button class="btn" onclick="selectFinger(2)">2 Parmak</button>
-<button class="btn" onclick="selectFinger(3)">3 Parmak</button>
-<button class="btn" onclick="selectFinger(4)">4 Parmak</button>
-</div>
-
-<div id="step4" class="step hidden">
-<h2>Silah Tercihi</h2>
-
-<button class="btn" onclick="generate('AR')">AR / SMG</button>
-<button class="btn" onclick="generate('Single')">Tekli Silahlar</button>
-<button class="btn" onclick="generate('Sniper')">Keskin Nişancı</button>
-</div>
-
-<div id="result" class="hidden">
-
-<h2 style="text-align:center;margin-bottom:15px;">
-Hassasiyet Sonuçları
-</h2>
-
-<div class="resultItem">
-<span>Genel</span>
-<span id="general" class="value"></span>
-</div>
-
-<div class="resultItem">
-<span>Kırmızı Nokta</span>
-<span id="red" class="value"></span>
-</div>
-
-<div class="resultItem">
-<span>2x Dürbün</span>
-<span id="x2" class="value"></span>
-</div>
-
-<div class="resultItem">
-<span>4x Dürbün</span>
-<span id="x4" class="value"></span>
-</div>
-
-<div class="resultItem">
-<span>Keskin Nişancı</span>
-<span id="sniper" class="value"></span>
-</div>
-
-<div class="resultItem">
-<span>Serbest Bakış</span>
-<span id="free" class="value"></span>
-</div>
-
-<div class="resultItem">
-<span>DPI</span>
-<span id="dpi" class="value"></span>
-</div>
-
-<div class="resultItem">
-<span>Ateş Butonu</span>
-<span id="fire" class="value"></span>
-</div>
-
-</div>
-
-</div>
+<h3 id="general"></h3>
+<h3 id="red"></h3>
+<h3 id="x2"></h3>
+<h3 id="x4"></h3>
+<h3 id="sniper"></h3>
+<h3 id="free"></h3>
+<h3 id="dpi"></h3>
+<h3 id="fire"></h3>
 
 <script>
 
-let device="";
-let style="";
-let finger=2;
-
-function next(from,to,p){
-document.getElementById(from).classList.add("hidden");
-document.getElementById(to).classList.remove("hidden");
-document.getElementById("progress").style.width=p+"%";
-}
+let device = "";
+let style = "Rush";
+let finger = 4;
 
 function selectDevice(v){
-device=v;
-next("step1","step2",50);
-}
-
-function selectStyle(v){
-style=v;
-next("step2","step3",75);
-}
-
-function selectFinger(v){
-finger=v;
-next("step3","step4",100);
+  device = v;
 }
 
 function rand(min,max){
-return Math.floor(Math.random()*(max-min+1))+min;
+  return Math.floor(Math.random()*(max-min+1))+min;
 }
 
-function generate(weapon){
-
-document.getElementById("step4").classList.add("hidden");
-document.getElementById("result").classList.remove("hidden");
+function generate(){
 
 let general, red, x2, x4, sniper, free, dpi, fire;
 
-if(device==="iPhone"){
+if(device === "iPhone"){
 
-general = 100 + Math.floor(Math.random()*6);
-red     = 95 + Math.floor(Math.random()*6);
-x2      = 85 + Math.floor(Math.random()*6);
-x4      = 75 + Math.floor(Math.random()*6);
-sniper  = 60 + Math.floor(Math.random()*6);
-free    = 105 + Math.floor(Math.random()*6);
-dpi     = 500 + Math.floor(Math.random()*21);
-fire    = 45 + Math.floor(Math.random()*4);
+  general = 100 + rand(0,6);
+  red     = 95  + rand(0,6);
+  x2      = 85  + rand(0,6);
+  x4      = 75  + rand(0,6);
+  sniper  = 60  + rand(0,6);
+  free    = 105 + rand(0,6);
+  dpi     = 500 + rand(0,21);
+  fire    = 45  + rand(0,4);
+
+}else{
+
+  let base = 155;
+
+  if(style==="Rush") base+=10;
+  if(style==="Range") base-=5;
+  if(finger===4) base+=5;
+
+  general = Math.min(200, base+rand(0,10));
+  red     = Math.min(200, base+rand(-5,10));
+  x2      = Math.min(200, base-10+rand(0,10));
+  x4      = Math.min(200, base-20+rand(0,10));
+  sniper  = Math.min(200, base-30+rand(0,10));
+  free    = Math.min(200, base+rand(-10,10));
+  dpi     = rand(500,800);
+  fire    = rand(45,65);
+
+}
 
 document.getElementById("general").innerText = general;
 document.getElementById("red").innerText = red;
@@ -262,75 +76,7 @@ document.getElementById("free").innerText = free;
 document.getElementById("dpi").innerText = dpi;
 document.getElementById("fire").innerText = fire + "%";
 
-}else{
-let base = 155;
-
-if(style==="Rush") base+=10;
-if(style==="Range") base-=5;
-
-if(finger===4) base+=5;
-
-document.getElementById("general").innerText=Math.min(200,base+rand(0,10));
-document.getElementById("red").innerText=Math.min(200,base+rand(-5,10));
-document.getElementById("x2").innerText=Math.min(200,base-10+rand(0,10));
-document.getElementById("x4").innerText=Math.min(200,base-20+rand(0,10));
-document.getElementById("sniper").innerText=Math.min(200,base-30+rand(0,10));
-document.getElementById("free").innerText=Math.min(200,base+rand(-10,10));
-document.getElementById("dpi").innerText=rand(500,800);
-document.getElementById("fire").innerText=rand(45,65)+"%";
 }
-
-/* KIRMIZI NEON NOKTALAR */
-
-const canvas=document.getElementById("bg");
-const ctx=canvas.getContext("2d");
-
-function resize(){
-canvas.width=innerWidth;
-canvas.height=innerHeight;
-}
-
-resize();
-window.addEventListener("resize",resize);
-
-let dots=[];
-
-for(let i=0;i<120;i++){
-dots.push({
-x:Math.random()*innerWidth,
-y:Math.random()*innerHeight,
-vx:(Math.random()-.5)*2,
-vy:(Math.random()-.5)*2,
-r:Math.random()*2+1
-});
-}
-
-function animate(){
-
-ctx.fillStyle="black";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-
-for(let d of dots){
-
-d.x+=d.vx;
-d.y+=d.vy;
-
-if(d.x<0||d.x>canvas.width)d.vx*=-1;
-if(d.y<0||d.y>canvas.height)d.vy*=-1;
-
-ctx.beginPath();
-ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
-
-ctx.fillStyle="red";
-ctx.shadowBlur=20;
-ctx.shadowColor="red";
-ctx.fill();
-}
-
-requestAnimationFrame(animate);
-}
-
-animate();
 
 </script>
 
