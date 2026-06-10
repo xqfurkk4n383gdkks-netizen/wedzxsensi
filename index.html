@@ -1,101 +1,188 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>wedzXsensi AI</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
 
-<canvas id="particles"></canvas>
+body{
+background:#000;
+color:#fff;
+overflow:hidden;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
 
-<div class="container">
+/* KIRMIZI NOKTALAR CANVAS */
+#particles{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-1;
+}
 
-<h1 class="logo">wedzXsensi</h1>
+/* ANA KUTU */
+.container{
+width:90%;
+max-width:380px;
+background:rgba(0,0,0,.85);
+border:1px solid rgba(255,0,0,.5);
+border-radius:22px;
+padding:20px;
+backdrop-filter:blur(12px);
+box-shadow:
+0 0 15px rgba(255,0,0,.4),
+0 0 40px rgba(255,0,0,.15);
+}
 
-<div class="progress">
-<div class="progress-fill" id="progressFill"></div>
-</div>
+/* LOGO */
+.logo{
+text-align:center;
+font-size:32px;
+font-weight:900;
+margin-bottom:18px;
+color:#fff;
+text-shadow:
+0 0 10px red,
+0 0 20px red,
+0 0 35px red;
+}
 
-<div id="step1" class="step">
-<h2>Cihazını Seç</h2>
+/* PROGRESS */
+.progress{
+width:100%;
+height:8px;
+background:#161616;
+border-radius:999px;
+overflow:hidden;
+margin-bottom:20px;
+}
 
-<button class="option">Android</button>
-<button class="option">iPhone</button>
-</div>
+.progress-fill{
+height:100%;
+width:25%;
+background:linear-gradient(90deg,#ff0000,#ff4d4d);
+border-radius:999px;
+box-shadow:0 0 12px red;
+transition:.4s;
+}
 
-<div id="step2" class="step hidden">
-<h2>Oyun Tarzın</h2>
+/* STEP */
+.step{
+animation:fade .35s ease;
+}
 
-<button class="option">Rushçu</button>
-<button class="option">Dengeli</button>
-<button class="option">Uzun Menzil</button>
-</div>
+.step h2{
+font-size:18px;
+margin-bottom:14px;
+text-align:center;
+font-weight:700;
+}
 
-<div id="step3" class="step hidden">
-<h2>Kontrol Tipin</h2>
+/* BUTONLAR */
+.option{
+width:100%;
+padding:14px;
+margin-bottom:10px;
+border:none;
+outline:none;
+border-radius:14px;
 
-<button class="option">2 Parmak</button>
-<button class="option">3 Parmak</button>
-<button class="option">4 Parmak</button>
-</div>
+background:#111;
+color:#fff;
 
-<div id="step4" class="step hidden">
-<h2>Silah Tercihin</h2>
+font-size:15px;
+font-weight:700;
 
-<button class="option">AR/SMG</button>
-<button class="option">Tekli Silahlar</button>
-<button class="option">Keskin Nişancı</button>
-</div>
+cursor:pointer;
 
-<div id="result" class="hidden">
-<h2>Hassasiyet Sonuçları</h2>
+border:1px solid rgba(255,0,0,.3);
 
-<div class="result-item">
-<span>Genel</span>
-<span id="general"></span>
-</div>
+transition:.25s;
+}
 
-<div class="result-item">
-<span>Kırmızı Nokta</span>
-<span id="redDot"></span>
-</div>
+.option:hover{
+background:#1b1b1b;
+border-color:red;
 
-<div class="result-item">
-<span>2x Dürbün</span>
-<span id="scope2x"></span>
-</div>
+box-shadow:
+0 0 12px rgba(255,0,0,.6);
+}
 
-<div class="result-item">
-<span>4x Dürbün</span>
-<span id="scope4x"></span>
-</div>
+.option:active{
+transform:scale(.97);
+}
 
-<div class="result-item">
-<span>Keskin Nişancı</span>
-<span id="sniper"></span>
-</div>
+/* SONUÇ */
+#result{
+animation:fade .4s ease;
+}
 
-<div class="result-item">
-<span>Serbest Bakış</span>
-<span id="freeLook"></span>
-</div>
+#result h2{
+text-align:center;
+margin-bottom:14px;
+}
 
-<div class="result-item">
-<span>DPI</span>
-<span id="dpi"></span>
-</div>
+/* SONUÇ SATIRLARI */
+.result-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
 
-<div class="result-item">
-<span>Ateş Butonu</span>
-<span id="fireBtn"></span>
-</div>
+padding:11px 14px;
+margin-bottom:8px;
 
-</div>
+background:#101010;
+border-radius:12px;
 
-</div>
+border:1px solid rgba(255,0,0,.2);
+}
 
-<script src="script.js"></script>
-</body>
-</html>
+.result-item span:last-child{
+color:#ff4d4d;
+font-weight:800;
+}
+
+/* GİZLE */
+.hidden{
+display:none;
+}
+
+/* ANİMASYON */
+@keyframes fade{
+from{
+opacity:0;
+transform:translateY(12px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+/* MOBİL */
+@media(max-width:450px){
+
+.container{
+width:92%;
+padding:16px;
+}
+
+.logo{
+font-size:28px;
+}
+
+.step h2{
+font-size:16px;
+}
+
+.option{
+font-size:14px;
+padding:13px;
+}
+
+}
