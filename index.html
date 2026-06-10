@@ -2,48 +2,99 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>wedzXsensi PRO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wedzXsensi W2</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#000;color:#fff;overflow:hidden;display:flex;justify-content:center;align-items:center;height:100vh}
-
-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1}
-
-.container{
-width:92%;max-width:380px;
-background:rgba(0,0,0,.85);
-border:1px solid red;
-border-radius:20px;
-padding:20px;
-box-shadow:0 0 20px red;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
 }
 
-.logo{text-align:center;font-size:28px;font-weight:900;text-shadow:0 0 10px red}
+body{
+background:#000;
+color:#fff;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+overflow:hidden;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-1;
+}
+
+.container{
+width:92%;
+max-width:420px;
+padding:20px;
+border-radius:24px;
+background:rgba(0,0,0,.75);
+backdrop-filter:blur(12px);
+border:1px solid rgba(255,255,255,.08);
+box-shadow:
+0 0 25px rgba(255,0,60,.5),
+0 0 35px rgba(0,120,255,.3);
+}
+
+.logo{
+text-align:center;
+font-size:32px;
+font-weight:900;
+margin-bottom:20px;
+text-shadow:
+0 0 10px #ff0033,
+0 0 20px #ff0033,
+0 0 10px #0066ff,
+0 0 20px #0066ff;
+}
 
 .btn{
 width:100%;
-padding:12px;
-margin:6px 0;
-background:#111;
+padding:14px;
+margin-bottom:10px;
+border:none;
+border-radius:14px;
+background:rgba(255,255,255,.05);
 color:#fff;
-border:1px solid red;
-border-radius:10px
+font-weight:bold;
+cursor:pointer;
+transition:.3s;
 }
 
-.hidden{display:none}
+.btn:hover{
+transform:scale(1.03);
+box-shadow:
+0 0 15px #ff0033,
+0 0 20px #0066ff;
+}
+
+.hidden{
+display:none;
+}
 
 .resultItem{
 display:flex;
 justify-content:space-between;
-padding:8px;
-margin:5px 0;
-background:#111;
-border-radius:10px
+padding:12px;
+margin-bottom:8px;
+border-radius:12px;
+background:rgba(255,255,255,.04);
+border:1px solid rgba(255,255,255,.08);
 }
 
-.value{color:red;font-weight:bold}
+.value{
+color:#ff3355;
+font-weight:bold;
+}
 </style>
 </head>
 
@@ -53,38 +104,43 @@ border-radius:10px
 
 <div class="container">
 
-<div class="logo">wedzXsensi PRO</div>
+<div class="logo">wedzXsensi W2</div>
 
 <div id="step1">
-<button class="btn" onclick="selectDevice('Android')">Android</button>
-<button class="btn" onclick="selectDevice('iPhone')">iPhone</button>
+<button class="btn" onclick="setDevice('iPhone')">iPhone</button>
+<button class="btn" onclick="setDevice('Android')">Android</button>
 </div>
 
 <div id="step2" class="hidden">
-<button class="btn" onclick="selectStyle('Hızlı Saldırı')">Hızlı Saldırı</button>
-<button class="btn" onclick="selectStyle('Uzun Menzil')">Uzun Menzil</button>
+<button class="btn" onclick="setStyle('Rush')">Rush</button>
+<button class="btn" onclick="setStyle('Rage')">Rage</button>
+<button class="btn" onclick="setStyle('Long Range')">Long Range</button>
 </div>
 
 <div id="step3" class="hidden">
-<button class="btn" onclick="selectFinger(2)">2 Parmak</button>
-<button class="btn" onclick="selectFinger(3)">3 Parmak</button>
-<button class="btn" onclick="selectFinger(4)">4 Parmak</button>
+<button class="btn" onclick="setFinger(2)">2 Parmak</button>
+<button class="btn" onclick="setFinger(3)">3 Parmak</button>
+<button class="btn" onclick="setFinger(4)">4 Parmak</button>
 </div>
 
 <div id="step4" class="hidden">
-<button class="btn" onclick="generate()">Hesapla</button>
+<button class="btn" onclick="generate()">HASSASİYET OLUŞTUR</button>
 </div>
 
 <div id="result" class="hidden">
 
-<div class="resultItem"><span>Genel</span><span id="general"></span></div>
-<div class="resultItem"><span>Kırmızı Nokta</span><span id="red"></span></div>
-<div class="resultItem"><span>2x</span><span id="x2"></span></div>
-<div class="resultItem"><span>4x</span><span id="x4"></span></div>
-<div class="resultItem"><span>Keskin Nişancı</span><span id="sniper"></span></div>
-<div class="resultItem"><span>Serbest Bakış</span><span id="free"></span></div>
-<div class="resultItem"><span>DPI</span><span id="dpi"></span></div>
-<div class="resultItem"><span>Ateş</span><span id="fire"></span></div>
+<div class="resultItem"><span>Ekran Boyutu</span><span class="value">Orta</span></div>
+<div class="resultItem"><span>Genel</span><span id="general" class="value"></span></div>
+<div class="resultItem"><span>Kırmızı Nokta</span><span id="red" class="value"></span></div>
+<div class="resultItem"><span>2x Dürbün</span><span id="x2" class="value"></span></div>
+<div class="resultItem"><span>4x Dürbün</span><span id="x4" class="value"></span></div>
+<div class="resultItem"><span>Keskin Nişancı</span><span id="sniper" class="value"></span></div>
+<div class="resultItem"><span>Serbest Bakış</span><span id="free" class="value"></span></div>
+<div class="resultItem"><span>DPI</span><span id="dpi" class="value"></span></div>
+<div class="resultItem"><span>Ateş Butonu</span><span id="fire" class="value"></span></div>
+
+<button class="btn" onclick="copyResult()">Sonucu Kopyala</button>
+<button class="btn" onclick="location.reload()">Yeniden Hesapla</button>
 
 </div>
 
@@ -94,13 +150,24 @@ border-radius:10px
 
 let device="",style="",finger=2;
 
-function selectDevice(v){device=v;next("step1","step2")}
-function selectStyle(v){style=v;next("step2","step3")}
-function selectFinger(v){finger=v;next("step3","step4")}
-
 function next(a,b){
 document.getElementById(a).classList.add("hidden");
 document.getElementById(b).classList.remove("hidden");
+}
+
+function setDevice(v){
+device=v;
+next("step1","step2");
+}
+
+function setStyle(v){
+style=v;
+next("step2","step3");
+}
+
+function setFinger(v){
+finger=v;
+next("step3","step4");
 }
 
 function rand(min,max){
@@ -109,82 +176,93 @@ return Math.floor(Math.random()*(max-min+1))+min;
 
 function generate(){
 
-document.getElementById("step4").classList.add("hidden");
-document.getElementById("result").classList.remove("hidden");
-
-let g,r,x2,x4,s,f,dpi,fire;
+next("step4","result");
 
 if(device==="iPhone"){
 
-g=100+rand(0,10);
-r=95+rand(0,10);
-x2=85+rand(0,10);
-x4=75+rand(0,10);
-s=60+rand(0,10);
-f=105+rand(0,10);
-dpi=500+rand(0,50);
-fire=45+rand(0,5);
+general.innerText=rand(70,100);
+red.innerText=rand(60,100);
+x2.innerText=rand(50,95);
+x4.innerText=rand(45,90);
+sniper.innerText=rand(40,85);
+free.innerText=rand(60,100);
+dpi.innerText=rand(400,560);
+fire.innerText=rand(40,55)+"%";
 
 }else{
 
-let base=155;
+general.innerText=rand(170,200);
+red.innerText=rand(165,200);
+x2.innerText=rand(160,195);
+x4.innerText=rand(150,190);
+sniper.innerText=rand(145,185);
+free.innerText=rand(170,200);
+dpi.innerText=rand(550,800);
+fire.innerText=rand(50,70)+"%";
 
-if(style==="Hızlı Saldırı")base+=10;
-if(style==="Uzun Menzil")base-=5;
-if(finger===4)base+=5;
-
-g=base+rand(0,10);
-r=base+rand(-5,10);
-x2=base-10+rand(0,10);
-x4=base-20+rand(0,10);
-s=base-30+rand(0,10);
-f=base+rand(-10,10);
-dpi=rand(500,800);
-fire=rand(45,65);
 }
 
-document.getElementById("general").innerText=g;
-document.getElementById("red").innerText=r;
-document.getElementById("x2").innerText=x2;
-document.getElementById("x4").innerText=x4;
-document.getElementById("sniper").innerText=s;
-document.getElementById("free").innerText=f;
-document.getElementById("dpi").innerText=dpi;
-document.getElementById("fire").innerText=fire+"%";
 }
 
-/* RED DOT ANİMASYON */
+function copyResult(){
+
+let text=
+"wedzXsensi W2\n\n"+
+"Genel: "+general.innerText+"\n"+
+"Kırmızı Nokta: "+red.innerText+"\n"+
+"2x: "+x2.innerText+"\n"+
+"4x: "+x4.innerText+"\n"+
+"Keskin Nişancı: "+sniper.innerText+"\n"+
+"Serbest Bakış: "+free.innerText+"\n"+
+"DPI: "+dpi.innerText+"\n"+
+"Ateş: "+fire.innerText;
+
+navigator.clipboard.writeText(text);
+alert("Sonuç kopyalandı!");
+}
+
+/* NEON ARKA PLAN */
 const canvas=document.getElementById("bg");
 const ctx=canvas.getContext("2d");
 
+function resize(){
 canvas.width=innerWidth;
 canvas.height=innerHeight;
+}
+resize();
+window.addEventListener("resize",resize);
 
-let dots=[];
-for(let i=0;i<200;i++){
+const dots=[];
+
+for(let i=0;i<300;i++){
 dots.push({
 x:Math.random()*canvas.width,
 y:Math.random()*canvas.height,
-vx:(Math.random()-.5)*2,
-vy:(Math.random()-.5)*2,
-r:Math.random()*2.5+1
+vx:(Math.random()-.5)*1.5,
+vy:(Math.random()-.5)*1.5,
+r:Math.random()*2+1,
+c:Math.random()>0.5?"#ff0033":"#0066ff"
 });
 }
 
 function animate(){
-ctx.fillStyle="black";
+
+ctx.fillStyle="#000";
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
 for(let d of dots){
+
 d.x+=d.vx;
 d.y+=d.vy;
 
 if(d.x<0||d.x>canvas.width)d.vx*=-1;
 if(d.y<0||d.y>canvas.height)d.vy*=-1;
 
-ctx.fillStyle="red";
 ctx.beginPath();
 ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+ctx.fillStyle=d.c;
+ctx.shadowBlur=15;
+ctx.shadowColor=d.c;
 ctx.fill();
 }
 
