@@ -244,37 +244,14 @@ let general, red, x2, x4, sniper, free, dpi, fire;
 
 if(device==="iPhone"){
 
-// iPhone için yüksek sens
-general = 195 + Math.floor(Math.random()*6);
-red     = 190 + Math.floor(Math.random()*8);
-x2      = 180 + Math.floor(Math.random()*10);
-x4      = 170 + Math.floor(Math.random()*10);
-sniper  = 145 + Math.floor(Math.random()*10);
-free    = 185 + Math.floor(Math.random()*10);
-dpi     = 650 + Math.floor(Math.random()*70);
-fire    = 48 + Math.floor(Math.random()*7);
-
-}else{
-
-// Android için normal sens
-let base = 155;
-
-if(style==="Rush") base += 10;
-if(style==="Range") base -= 5;
-
-if(finger===4) base += 5;
-if(finger===3) base += 2;
-
-general = Math.min(200, base + rand(0,10));
-red     = Math.min(200, base + rand(-5,10));
-x2      = Math.min(200, base - 10 + rand(0,10));
-x4      = Math.min(200, base - 20 + rand(0,10));
-sniper  = Math.min(200, base - 30 + rand(0,10));
-free    = Math.min(200, base + rand(-10,10));
-dpi     = rand(550,700);
-fire    = rand(48,60);
-
-}
+general = 100 + Math.floor(Math.random()*6);
+red     = 95 + Math.floor(Math.random()*6);
+x2      = 85 + Math.floor(Math.random()*6);
+x4      = 75 + Math.floor(Math.random()*6);
+sniper  = 60 + Math.floor(Math.random()*6);
+free    = 105 + Math.floor(Math.random()*6);
+dpi     = 500 + Math.floor(Math.random()*21);
+fire    = 45 + Math.floor(Math.random()*4);
 
 document.getElementById("general").innerText = general;
 document.getElementById("red").innerText = red;
@@ -285,12 +262,8 @@ document.getElementById("free").innerText = free;
 document.getElementById("dpi").innerText = dpi;
 document.getElementById("fire").innerText = fire + "%";
 
-}
-
-document.getElementById("step4").classList.add("hidden");
-document.getElementById("result").classList.remove("hidden");
-
-let base=device==="iPhone"?170:155;
+}else{
+let base = 155;
 
 if(style==="Rush") base+=10;
 if(style==="Range") base-=5;
