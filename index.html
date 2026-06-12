@@ -34,7 +34,6 @@ border-radius:18px;
 background:rgba(10,10,10,.85);
 border:1px solid rgba(255,0,80,.4);
 box-shadow:0 0 25px rgba(255,0,80,.4);
-backdrop-filter:blur(10px);
 }
 
 .logo{
@@ -109,9 +108,9 @@ outline:none;
 <button class="btn" onclick="setDevice('PC')">PC</button>
 </div>
 
-<!-- PHONE MODEL INPUT -->
+<!-- PHONE MODEL -->
 <div id="step2" class="hidden">
-<input id="phoneModel" placeholder="Telefon modelini yaz (örn: iPhone 13 / Samsung A54)">
+<input id="phoneModel" placeholder="Telefon modeli yaz">
 <button class="btn" onclick="nextStep()">Devam</button>
 </div>
 
@@ -193,7 +192,7 @@ document.getElementById("step5").classList.remove("hidden");
 }
 
 function rand(min,max){
-return Math.floor(Math.random()*(min,max+1)+min);
+return Math.floor(Math.random()*(max-min+1))+min;
 }
 
 function generate(){
@@ -215,12 +214,12 @@ else{
 model.innerText=phoneModel;
 
 if(device==="iPhone"){
-gen.innerText=rand(80,100);
-red.innerText=rand(80,100);
-x2.innerText=rand(75,95);
-x4.innerText=rand(70,90);
-sniper.innerText=rand(65,85);
-free.innerText=rand(80,100);
+gen.innerText=rand(55,100);
+red.innerText=rand(50,100);
+x2.innerText=rand(50,95);
+x4.innerText=rand(50,90);
+sniper.innerText=rand(45,85);
+free.innerText=rand(50,100);
 dpi.innerText=rand(70,120);
 }
 
@@ -253,7 +252,7 @@ navigator.clipboard.writeText(text);
 alert("Kopyalandı!");
 }
 
-/* 🔴🔵 NEON BACKGROUND */
+/* NEON BACKGROUND */
 const c=document.getElementById("bg");
 const x=c.getContext("2d");
 
