@@ -31,7 +31,7 @@ width:92%;
 max-width:430px;
 padding:20px;
 border-radius:18px;
-background:rgba(10,10,10,.8);
+background:rgba(10,10,10,.85);
 border:1px solid rgba(255,0,80,.4);
 box-shadow:0 0 25px rgba(255,0,80,.4);
 }
@@ -41,7 +41,7 @@ text-align:center;
 font-size:28px;
 font-weight:900;
 margin-bottom:10px;
-color:#ff3b6b;
+color:#ff2e6a;
 text-shadow:0 0 15px #ff0044;
 }
 
@@ -75,16 +75,20 @@ border-radius:10px;
 border:1px solid rgba(255,255,255,.1);
 }
 
-.val{color:#ff4d6d;font-weight:bold;}
+.val{
+color:#ff4d6d;
+font-weight:bold;
+}
 
-select{
+input{
 width:100%;
-padding:10px;
-margin:5px 0;
+padding:12px;
 border-radius:10px;
+border:none;
+margin:5px 0;
 background:#111;
 color:#fff;
-border:1px solid rgba(255,255,255,.2);
+outline:none;
 }
 </style>
 </head>
@@ -97,45 +101,41 @@ border:1px solid rgba(255,255,255,.2);
 
 <div class="logo">wedzXsensi W2 PRO</div>
 
+<!-- DEVICE -->
 <div id="step1">
 <button class="btn" onclick="setDevice('iPhone')">iPhone</button>
 <button class="btn" onclick="setDevice('Android')">Android</button>
 <button class="btn" onclick="setDevice('PC')">PC</button>
 </div>
 
+<!-- MODEL INPUT -->
 <div id="step2" class="hidden">
-<select id="model">
-<option value="iphone11">iPhone 11</option>
-<option value="iphone12">iPhone 12</option>
-<option value="iphone13">iPhone 13</option>
-<option value="iphone14">iPhone 14</option>
-<option value="iphone15">iPhone 15</option>
-<option value="iphone16">iPhone 16</option>
-<option value="iphone17">iPhone 17</option>
-<option value="pro">Pro</option>
-<option value="promax">Pro Max</option>
-</select>
-
+<input id="modelInput" placeholder="Telefon modelini yaz (örn: iPhone 13 Pro Max)">
 <button class="btn" onclick="nextStep()">Devam</button>
 </div>
 
+<!-- FINGER -->
 <div id="step3" class="hidden">
 <button class="btn" onclick="setFinger(2)">2 Parmak</button>
 <button class="btn" onclick="setFinger(3)">3 Parmak</button>
 <button class="btn" onclick="setFinger(4)">4 Parmak</button>
 </div>
 
+<!-- GENERATE -->
 <div id="step4" class="hidden">
-<button class="btn" onclick="generate()">HASSASİYET ÜRET</button>
+<button class="btn" onclick="generate()">HASSASİYET OLUŞTUR</button>
 </div>
 
+<!-- RESULT -->
 <div id="result" class="hidden">
 
+<div class="item"><span>Model</span><span id="model" class="val"></span></div>
 <div class="item"><span>Genel</span><span id="gen" class="val"></span></div>
 <div class="item"><span>Kırmızı</span><span id="red" class="val"></span></div>
 <div class="item"><span>2x</span><span id="x2" class="val"></span></div>
 <div class="item"><span>4x</span><span id="x4" class="val"></span></div>
 <div class="item"><span>Sniper</span><span id="sniper" class="val"></span></div>
+<div class="item"><span>Serbest Bakış</span><span id="free" class="val"></span></div>
 <div class="item"><span>DPI</span><span id="dpi" class="val"></span></div>
 <div class="item"><span>Headshot %</span><span id="hs" class="val"></span></div>
 
@@ -148,7 +148,7 @@ border:1px solid rgba(255,255,255,.2);
 
 <script>
 
-let device="",finger=2;
+let device="",finger=2,phoneModel="";
 
 function setDevice(v){
 device=v;
@@ -157,6 +157,7 @@ document.getElementById("step2").classList.remove("hidden");
 }
 
 function nextStep(){
+phoneModel=document.getElementById("modelInput").value || "Unknown Model";
 document.getElementById("step2").classList.add("hidden");
 document.getElementById("step3").classList.remove("hidden");
 }
@@ -175,9 +176,7 @@ function generate(){
 
 document.getElementById("result").classList.remove("hidden");
 
-let model=document.getElementById("model").value;
-
-let boost=finger*2;
+model.innerText=phoneModel;
 
 if(device==="iPhone"){
 gen.innerText=rand(80,100);
@@ -185,8 +184,9 @@ red.innerText=rand(80,100);
 x2.innerText=rand(75,95);
 x4.innerText=rand(70,90);
 sniper.innerText=rand(65,85);
+free.innerText=rand(80,100);
 dpi.innerText=rand(70,120);
-hs.innerText=rand(80,99);
+hs.innerText=rand(85,99);
 }
 
 else if(device==="Android"){
@@ -195,31 +195,34 @@ red.innerText=rand(165,200);
 x2.innerText=rand(160,195);
 x4.innerText=rand(150,190);
 sniper.innerText=rand(140,185);
+free.innerText=rand(170,200);
 dpi.innerText=rand(500,800);
 hs.innerText=rand(75,98);
 }
 
-else if(device==="PC"){
+else{
 gen.innerText=rand(30,70);
 red.innerText=rand(35,75);
 x2.innerText=rand(25,65);
 x4.innerText=rand(20,60);
 sniper.innerText=rand(40,80);
+free.innerText=rand(40,85);
 dpi.innerText=rand(400,1200);
 hs.innerText=rand(60,95);
 }
-
 }
 
 function copy(){
 
 let text=
 "wedzXsensi W2 PRO\n"+
+"Model: "+model.innerText+"\n"+
 "Genel: "+gen.innerText+"\n"+
 "Kırmızı: "+red.innerText+"\n"+
 "2x: "+x2.innerText+"\n"+
 "4x: "+x4.innerText+"\n"+
 "Sniper: "+sniper.innerText+"\n"+
+"Serbest Bakış: "+free.innerText+"\n"+
 "DPI: "+dpi.innerText+"\n"+
 "Headshot: "+hs.innerText+"%";
 
@@ -235,12 +238,12 @@ c.width=innerWidth;
 c.height=innerHeight;
 
 let dots=[];
-for(let i=0;i<250;i++){
+for(let i=0;i<260;i++){
 dots.push({
 x:Math.random()*c.width,
 y:Math.random()*c.height,
-vx:(Math.random()-.5)*1.5,
-vy:(Math.random()-.5)*1.5,
+vx:(Math.random()-.5)*1.3,
+vy:(Math.random()-.5)*1.3,
 r:Math.random()*2
 });
 }
