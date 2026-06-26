@@ -23,25 +23,30 @@ height:100%;
 z-index:-1;
 }
 
-.container{
+.wrap{
 position:relative;
 z-index:1;
-text-align:center;
-padding:30px;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+height:100vh;
+}
+
+.panel{
+width:90%;
+max-width:600px;
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,0,0,0.3);
+border-radius:15px;
+padding:20px;
+backdrop-filter:blur(10px);
+box-shadow:0 0 25px rgba(255,0,0,0.2);
 }
 
 h1{
+text-align:center;
 text-shadow:0 0 20px red;
-}
-
-.card{
-background:rgba(255,255,255,0.05);
-padding:20px;
-margin:15px auto;
-border-radius:15px;
-border:1px solid rgba(255,0,0,0.3);
-max-width:500px;
-backdrop-filter:blur(10px);
 }
 
 select,input,button{
@@ -54,7 +59,7 @@ outline:none;
 }
 
 button{
-background:red;
+background:linear-gradient(90deg,red,darkred);
 color:white;
 font-weight:bold;
 cursor:pointer;
@@ -62,6 +67,7 @@ cursor:pointer;
 
 button:hover{
 box-shadow:0 0 20px red;
+transform:scale(1.03);
 }
 </style>
 </head>
@@ -70,16 +76,16 @@ box-shadow:0 0 20px red;
 
 <canvas id="bg"></canvas>
 
-<div class="container">
+<div class="wrap">
 
 <h1>wedzXsensi V3</h1>
 
-<!-- 📱 TELEFON -->
-<div class="card">
-<h3>📱 Telefon</h3>
+<div class="panel">
+
+<h3>📱 Cihaz</h3>
 
 <select id="brand" onchange="loadModels()">
-<option>Marka</option>
+<option>Marka Seç</option>
 <option>Apple</option>
 <option>Samsung</option>
 <option>Xiaomi</option>
@@ -91,12 +97,9 @@ box-shadow:0 0 20px red;
 </select>
 
 <select id="model">
-<option>Önce marka seç</option>
+<option>Model</option>
 </select>
-</div>
 
-<!-- 💻 PC -->
-<div class="card">
 <h3>💻 PC</h3>
 
 <select id="cpu">
@@ -141,7 +144,7 @@ canvas.height=window.innerHeight;
 
 let dots=[];
 
-for(let i=0;i<80;i++){
+for(let i=0;i<90;i++){
 dots.push({
 x:Math.random()*canvas.width,
 y:Math.random()*canvas.height,
@@ -195,7 +198,7 @@ draw();
 /* 📱 MODELLER */
 const models={
 Apple:["iPhone 11","iPhone 12","iPhone 13","iPhone 14","iPhone 15"],
-Samsung:["S21","S22","S23","S24"],
+Samsung:["S21","S22","S23","S24","A54"],
 Xiaomi:["Mi 11","Mi 12","Mi 13"],
 Redmi:["Note 10","Note 11","Note 12"],
 POCO:["X3","X5","F5"],
@@ -205,16 +208,16 @@ Vivo:["V27","V29"]
 };
 
 function loadModels(){
-let brand=document.getElementById("brand").value;
-let model=document.getElementById("model");
+let b=document.getElementById("brand").value;
+let m=document.getElementById("model");
 
-model.innerHTML="";
+m.innerHTML="";
 
-if(models[brand]){
-models[brand].forEach(m=>{
-let opt=document.createElement("option");
-opt.textContent=m;
-model.appendChild(opt);
+if(models[b]){
+models[b].forEach(x=>{
+let o=document.createElement("option");
+o.textContent=x;
+m.appendChild(o);
 });
 }
 }
@@ -237,12 +240,12 @@ return;
 let sens=Math.floor(Math.random()*90+30);
 let headshot=Math.floor(Math.random()*40+60);
 
-let msg="📱 "+brand+" "+model+
+alert(
+"📱 "+brand+" "+model+
 "\n💻 "+cpu+" + "+gpu+
 "\n🎯 Sens: "+sens+
-"\n🔥 Headshot: "+headshot+"%";
-
-alert(msg);
+"\n🔥 Headshot: "+headshot+"%"
+);
 
 }
 
