@@ -5,224 +5,436 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Free Fire Hassasiyet</title>
   <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f0f12, #1b1b22);
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+    :root{
+      --bg:#050508;
+      --card:rgba(255,255,255,.06);
+      --line:rgba(255,255,255,.12);
+      --text:#f3f6ff;
+      --muted:#aeb7cc;
+      --red:#ff2233;
+      --red2:#ff5c6b;
     }
-    .container {
-      width: 100%;
-      max-width: 900px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,34,51,.22), transparent 28%),
+        radial-gradient(circle at 80% 30%, rgba(255,34,51,.12), transparent 24%),
+        radial-gradient(circle at 50% 80%, rgba(255,34,51,.08), transparent 30%),
+        linear-gradient(135deg, #050508, #0a0b10 55%, #050508);
+      overflow-x:hidden;
+    }
+
+    .net{
+      position:fixed;
+      inset:-20%;
+      pointer-events:none;
+      opacity:.28;
+      background-image:
+        linear-gradient(rgba(255,34,51,.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,34,51,.22) 1px, transparent 1px);
+      background-size:70px 70px;
+      transform: perspective(900px) rotateX(62deg) translateY(150px);
+      animation: moveGrid 7s linear infinite;
+      filter: drop-shadow(0 0 8px rgba(255,34,51,.35));
+    }
+
+    .net::before,
+    .net::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, transparent, rgba(255,34,51,.55), transparent);
+      animation: sweep 4.5s linear infinite;
+      mix-blend-mode:screen;
+    }
+
+    .net::after{
+      background:linear-gradient(90deg, transparent, rgba(255,92,107,.35), transparent);
+      animation-duration:6s;
+    }
+
+    @keyframes moveGrid{
+      from{transform:perspective(900px) rotateX(62deg) translateY(150px) translateX(0)}
+      to{transform:perspective(900px) rotateX(62deg) translateY(150px) translateX(70px)}
+    }
+
+    @keyframes sweep{
+      from{transform:translateX(-60%)}
+      to{transform:translateX(60%)}
+    }
+
+    .wrap{
+      position:relative;
+      z-index:1;
+      max-width:1100px;
+      margin:0 auto;
+      padding:24px 16px 40px;
+    }
+
+    .hero{
+      background:linear-gradient(135deg, rgba(255,34,51,.14), rgba(255,255,255,.05));
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:24px;
+      box-shadow:0 0 35px rgba(0,0,0,.35);
       backdrop-filter: blur(10px);
     }
-    h1 {
-      margin: 0 0 8px;
-      font-size: 32px;
-      color: #ff4d4d;
+
+    h1{
+      margin:0;
+      font-size:38px;
+      color:#fff;
+      text-shadow:0 0 18px rgba(255,34,51,.45);
     }
-    p {
-      margin: 0 0 24px;
-      color: #cfcfcf;
+
+    p{
+      margin:10px 0 0;
+      color:var(--muted);
     }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 18px;
+
+    .top{
+      display:grid;
+      grid-template-columns: 1.6fr 1fr 1fr;
+      gap:14px;
+      margin-top:18px;
     }
-    .card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 16px;
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      backdrop-filter: blur(8px);
     }
-    .label-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      gap: 10px;
+
+    label{
+      display:block;
+      margin-bottom:8px;
+      font-weight:700;
     }
-    label {
-      font-weight: bold;
+
+    input, select{
+      width:100%;
+      border:none;
+      outline:none;
+      border-radius:12px;
+      padding:12px 14px;
+      background:#0d1018;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.12);
     }
-    .value {
-      color: #ffb3b3;
-      font-weight: bold;
-      min-width: 40px;
-      text-align: right;
+
+    .btns{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:16px;
     }
-    input[type="range"] {
-      width: 100%;
-      accent-color: #ff4d4d;
+
+    button{
+      border:none;
+      border-radius:12px;
+      padding:12px 18px;
+      cursor:pointer;
+      font-weight:700;
+      color:#fff;
+      transition:.2s;
     }
-    .button-row {
-      margin-top: 22px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+
+    .primary{
+      background:linear-gradient(90deg, var(--red), #ff7a18);
     }
-    button {
-      border: none;
-      padding: 12px 18px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.2s;
+
+    .ghost{
+      background:linear-gradient(90deg, #222633, #2d3243);
     }
-    .generate {
-      background: #ff4d4d;
-      color: white;
+
+    button:hover{transform:translateY(-1px);filter:brightness(1.08)}
+
+    .layout{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:18px;
+      margin-top:18px;
     }
-    .reset {
-      background: #2a2a33;
-      color: white;
+
+    .row{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:12px;
     }
-    button:hover { transform: translateY(-1px); }
-    .result {
-      margin-top: 22px;
-      padding: 18px;
-      border-radius: 16px;
-      background: rgba(0,0,0,0.25);
-      border: 1px solid rgba(255,255,255,0.08);
+
+    .row-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
     }
-    .result h2 {
-      margin-top: 0;
-      color: #7CFFB2;
+
+    .val{
+      color:#ffd2d6;
+      font-weight:800;
+      min-width:38px;
+      text-align:right;
     }
-    .result-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
+
+    input[type="range"]{
+      width:100%;
+      accent-color:#ff3344;
     }
-    .result-item {
-      background: rgba(255,255,255,0.05);
-      padding: 12px;
-      border-radius: 12px;
+
+    .result{
+      display:grid;
+      gap:12px;
     }
-    .small {
-      font-size: 13px;
-      color: #b8b8b8;
-      margin-top: 12px;
+
+    .pill{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      background:rgba(0,0,0,.2);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:14px 16px;
+    }
+
+    .tag{
+      font-size:12px;
+      color:#a9b2c7;
+    }
+
+    .good{
+      color:#7CFFB2;
+      font-weight:800;
+    }
+
+    .note{
+      margin-top:12px;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .footer{
+      margin-top:14px;
+      color:#9ca8c2;
+      font-size:13px;
+    }
+
+    @media (max-width: 900px){
+      .top, .layout{grid-template-columns:1fr}
+      h1{font-size:30px}
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Free Fire Hassasiyet</h1>
-    <p>Basit bir hassasiyet sitesi. Ayarları değiştir, sonucu oluştur.</p>
+  <div class="net"></div>
 
-    <div class="grid">
-      <div class="card">
-        <div class="label-row">
-          <label for="general">Genel</label>
-          <span class="value" id="generalVal">100</span>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Free Fire Hassasiyet</h1>
+      <p>Model yaz, platform seç, her telefona farklı hassasiyet üreten basit bir site.</p>
+
+      <div class="top">
+        <div class="card">
+          <label for="model">Telefon modeli</label>
+          <input id="model" type="text" placeholder="Örn: iPhone 13, Redmi Note 12, Galaxy A34" />
         </div>
-        <input type="range" id="general" min="0" max="200" value="100" oninput="sync('general')">
+
+        <div class="card">
+          <label for="platform">Platform</label>
+          <select id="platform">
+            <option value="iphone">iPhone</option>
+            <option value="android">Android</option>
+            <option value="pc">PC</option>
+          </select>
+        </div>
+
+        <div class="card">
+          <label for="style">Stil</label>
+          <select id="style">
+            <option value="balanced">Dengeli</option>
+            <option value="rush">Rush</option>
+            <option value="drag">Drag Headshot</option>
+            <option value="sniper">Sniper</option>
+          </select>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="label-row">
-          <label for="redDot">Red Dot</label>
-          <span class="value" id="redDotVal">90</span>
-        </div>
-        <input type="range" id="redDot" min="0" max="200" value="90" oninput="sync('redDot')">
-      </div>
-
-      <div class="card">
-        <div class="label-row">
-          <label for="scope2x">2x Scope</label>
-          <span class="value" id="scope2xVal">80</span>
-        </div>
-        <input type="range" id="scope2x" min="0" max="200" value="80" oninput="sync('scope2x')">
-      </div>
-
-      <div class="card">
-        <div class="label-row">
-          <label for="scope4x">4x Scope</label>
-          <span class="value" id="scope4xVal">70</span>
-        </div>
-        <input type="range" id="scope4x" min="0" max="200" value="70" oninput="sync('scope4x')">
-      </div>
-
-      <div class="card">
-        <div class="label-row">
-          <label for="awm">AWM Scope</label>
-          <span class="value" id="awmVal">55</span>
-        </div>
-        <input type="range" id="awm" min="0" max="200" value="55" oninput="sync('awm')">
-      </div>
-
-      <div class="card">
-        <div class="label-row">
-          <label for="freeLook">Free Look</label>
-          <span class="value" id="freeLookVal">60</span>
-        </div>
-        <input type="range" id="freeLook" min="0" max="200" value="60" oninput="sync('freeLook')">
+      <div class="btns">
+        <button class="primary" onclick="generate()">Hassasiyet Oluştur</button>
+        <button class="ghost" onclick="sample()">Örnek Doldur</button>
+        <button class="ghost" onclick="resetAll()">Sıfırla</button>
       </div>
     </div>
 
-    <div class="button-row">
-      <button class="generate" onclick="generate()">Hassasiyeti Oluştur</button>
-      <button class="reset" onclick="resetValues()">Sıfırla</button>
+    <div class="layout">
+      <div class="card">
+        <h2 style="margin-top:0">Ayarlar</h2>
+
+        <div class="row">
+          <div class="row-head"><span>Genel</span><span class="val" id="generalVal">90</span></div>
+          <input type="range" id="general" min="0" max="200" value="90" oninput="sync('general')">
+        </div>
+
+        <div class="row">
+          <div class="row-head"><span>Red Dot</span><span class="val" id="redVal">85</span></div>
+          <input type="range" id="red" min="0" max="200" value="85" oninput="sync('red')">
+        </div>
+
+        <div class="row">
+          <div class="row-head"><span>2x Scope</span><span class="val" id="twoVal">80</span></div>
+          <input type="range" id="two" min="0" max="200" value="80" oninput="sync('two')">
+        </div>
+
+        <div class="row">
+          <div class="row-head"><span>4x Scope</span><span class="val" id="fourVal">75</span></div>
+          <input type="range" id="four" min="0" max="200" value="75" oninput="sync('four')">
+        </div>
+
+        <div class="row">
+          <div class="row-head"><span>AWM / Sniper</span><span class="val" id="awmVal">50</span></div>
+          <input type="range" id="awm" min="0" max="200" value="50" oninput="sync('awm')">
+        </div>
+
+        <div class="row">
+          <div class="row-head"><span>Free Look</span><span class="val" id="lookVal">60</span></div>
+          <input type="range" id="look" min="0" max="200" value="60" oninput="sync('look')">
+        </div>
+
+        <p class="note">Bu örnekte aralıklar cihaz türüne göre değişir; Android için 100-200, iPhone için 40-100, PC için 0-80 mantığıyla öneri üretilir.</p>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-top:0">AI öneri sonucu</h2>
+        <div class="result">
+          <div class="pill"><span>Model</span><strong id="outModel">-</strong></div>
+          <div class="pill"><span>Platform</span><strong id="outPlatform">-</strong></div>
+          <div class="pill"><span>Genel</span><strong id="outGeneral">-</strong></div>
+          <div class="pill"><span>Red Dot</span><strong id="outRed">-</strong></div>
+          <div class="pill"><span>2x Scope</span><strong id="outTwo">-</strong></div>
+          <div class="pill"><span>4x Scope</span><strong id="outFour">-</strong></div>
+          <div class="pill"><span>AWM / Sniper</span><strong id="outAwm">-</strong></div>
+          <div class="pill"><span>Free Look</span><strong id="outLook">-</strong></div>
+        </div>
+
+        <p class="note">Bu sistem “aynı cihazda hep aynı ayar” vermemek için model adına göre küçük farklar ekler. Headshot garantisi vermez, ama farklı cihazlar için daha doğal öneriler üretir.</p>
+      </div>
     </div>
 
-    <div class="result" id="result">
-      <h2>Sonuç</h2>
-      <div class="result-grid">
-        <div class="result-item">Genel: <span id="rGeneral">100</span></div>
-        <div class="result-item">Red Dot: <span id="rRedDot">90</span></div>
-        <div class="result-item">2x Scope: <span id="r2x">80</span></div>
-        <div class="result-item">4x Scope: <span id="r4x">70</span></div>
-        <div class="result-item">AWM Scope: <span id="rAwm">55</span></div>
-        <div class="result-item">Free Look: <span id="rFreeLook">60</span></div>
-      </div>
-      <div class="small">Bu sayfa sadece arayüz örneğidir; istersen buna cihaz seçimi, DPI girişi ve otomatik öneri sistemi de eklenebilir.</div>
-    </div>
+    <div class="footer">Neon kırmızı ağ animasyonu • Free Fire hassasiyet sitesi örneği</div>
   </div>
 
   <script>
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function hashString(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) {
+        h = ((h << 5) - h) + str.charCodeAt(i);
+        h |= 0;
+      }
+      return Math.abs(h);
+    }
+
+    function rand(seed, min, max) {
+      const x = Math.sin(seed) * 10000;
+      return Math.floor((x - Math.floor(x)) * (max - min + 1)) + min;
+    }
+
+    function bounds(platform) {
+      if (platform === "iphone") return { min: 40, max: 100 };
+      if (platform === "pc") return { min: 0, max: 80 };
+      return { min: 100, max: 200 };
+    }
+
+    function styleOffsets(style) {
+      if (style === "rush") return [8, 6, 4, 2, 0, 5];
+      if (style === "drag") return [12, 10, 8, 5, 3, 7];
+      if (style === "sniper") return [-10, -8, -6, -4, 0, -8];
+      return [0, -2, -4, -6, -8, -4];
+    }
+
     function sync(id) {
-      const input = document.getElementById(id);
-      document.getElementById(id + 'Val').textContent = input.value;
+      document.getElementById(id + "Val").textContent = document.getElementById(id).value;
     }
 
     function generate() {
-      const ids = ['general', 'redDot', 'scope2x', 'scope4x', 'awm', 'freeLook'];
-      document.getElementById('rGeneral').textContent = document.getElementById('general').value;
-      document.getElementById('rRedDot').textContent = document.getElementById('redDot').value;
-      document.getElementById('r2x').textContent = document.getElementById('scope2x').value;
-      document.getElementById('r4x').textContent = document.getElementById('scope4x').value;
-      document.getElementById('rAwm').textContent = document.getElementById('awm').value;
-      document.getElementById('rFreeLook').textContent = document.getElementById('freeLook').value;
+      const model = document.getElementById("model").value.trim() || "Unknown Device";
+      const platform = document.getElementById("platform").value;
+      const style = document.getElementById("style").value;
+
+      const b = bounds(platform);
+      const seed = hashString(model + "|" + platform + "|" + style);
+      const offsets = styleOffsets(style);
+
+      let base;
+      if (platform === "iphone") base = [82, 76, 70, 64, 52, 62];
+      else if (platform === "pc") base = [65, 58, 52, 45, 35, 48];
+      else base = [170, 160, 150, 140, 125, 145];
+
+      const ids = ["general", "red", "two", "four", "awm", "look"];
+      const vals = ids.map((id, i) => {
+        const noise = rand(seed + (i + 1) * 97, -6, 6);
+        const value = clamp(Math.round(base[i] + offsets[i] + noise), b.min, b.max);
+        document.getElementById(id).value = value;
+        sync(id);
+        return value;
+      });
+
+      document.getElementById("outModel").textContent = model;
+      document.getElementById("outPlatform").textContent = platform.toUpperCase();
+      document.getElementById("outGeneral").textContent = vals[0];
+      document.getElementById("outRed").textContent = vals[1];
+      document.getElementById("outTwo").textContent = vals[2];
+      document.getElementById("outFour").textContent = vals[3];
+      document.getElementById("outAwm").textContent = vals[4];
+      document.getElementById("outLook").textContent = vals[5];
     }
 
-    function resetValues() {
-      const defaults = {
-        general: 100,
-        redDot: 90,
-        scope2x: 80,
-        scope4x: 70,
-        awm: 55,
-        freeLook: 60
-      };
-      for (const key in defaults) {
-        document.getElementById(key).value = defaults[key];
-        sync(key);
-      }
+    function sample() {
+      document.getElementById("model").value = "Samsung Galaxy A54";
+      document.getElementById("platform").value = "android";
+      document.getElementById("style").value = "drag";
       generate();
     }
+
+    function resetAll() {
+      document.getElementById("model").value = "";
+      document.getElementById("platform").value = "iphone";
+      document.getElementById("style").value = "balanced";
+
+      const defaults = {
+        general: 90,
+        red: 85,
+        two: 80,
+        four: 75,
+        awm: 50,
+        look: 60
+      };
+
+      Object.keys(defaults).forEach(id => {
+        document.getElementById(id).value = defaults[id];
+        sync(id);
+      });
+
+      ["outModel","outPlatform","outGeneral","outRed","outTwo","outFour","outAwm","outLook"].forEach(id => {
+        document.getElementById(id).textContent = "-";
+      });
+    }
+
+    generate();
   </script>
 </body>
 </html>
