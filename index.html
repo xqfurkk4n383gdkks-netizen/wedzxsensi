@@ -1,440 +1,252 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free Fire Hassasiyet</title>
-  <style>
-    :root{
-      --bg:#050508;
-      --card:rgba(255,255,255,.06);
-      --line:rgba(255,255,255,.12);
-      --text:#f3f6ff;
-      --muted:#aeb7cc;
-      --red:#ff2233;
-      --red2:#ff5c6b;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wedzXsensi V3</title>
 
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family:Arial,Helvetica,sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 20% 20%, rgba(255,34,51,.22), transparent 28%),
-        radial-gradient(circle at 80% 30%, rgba(255,34,51,.12), transparent 24%),
-        radial-gradient(circle at 50% 80%, rgba(255,34,51,.08), transparent 30%),
-        linear-gradient(135deg, #050508, #0a0b10 55%, #050508);
-      overflow-x:hidden;
-    }
+<style>
+body{
+margin:0;
+background:#000;
+color:#fff;
+font-family:Arial;
+overflow:hidden;
+}
 
-    .net{
-      position:fixed;
-      inset:-20%;
-      pointer-events:none;
-      opacity:.28;
-      background-image:
-        linear-gradient(rgba(255,34,51,.22) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,34,51,.22) 1px, transparent 1px);
-      background-size:70px 70px;
-      transform: perspective(900px) rotateX(62deg) translateY(150px);
-      animation: moveGrid 7s linear infinite;
-      filter: drop-shadow(0 0 8px rgba(255,34,51,.35));
-    }
+canvas{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-1;
+}
 
-    .net::before,
-    .net::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(90deg, transparent, rgba(255,34,51,.55), transparent);
-      animation: sweep 4.5s linear infinite;
-      mix-blend-mode:screen;
-    }
+.container{
+position:relative;
+z-index:1;
+text-align:center;
+padding:30px;
+}
 
-    .net::after{
-      background:linear-gradient(90deg, transparent, rgba(255,92,107,.35), transparent);
-      animation-duration:6s;
-    }
+h1{
+text-shadow:0 0 20px red;
+}
 
-    @keyframes moveGrid{
-      from{transform:perspective(900px) rotateX(62deg) translateY(150px) translateX(0)}
-      to{transform:perspective(900px) rotateX(62deg) translateY(150px) translateX(70px)}
-    }
+.card{
+background:rgba(255,255,255,0.05);
+padding:20px;
+margin:15px auto;
+border-radius:15px;
+border:1px solid rgba(255,0,0,0.3);
+max-width:500px;
+backdrop-filter:blur(10px);
+}
 
-    @keyframes sweep{
-      from{transform:translateX(-60%)}
-      to{transform:translateX(60%)}
-    }
+select,input,button{
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:10px;
+border:none;
+outline:none;
+}
 
-    .wrap{
-      position:relative;
-      z-index:1;
-      max-width:1100px;
-      margin:0 auto;
-      padding:24px 16px 40px;
-    }
+button{
+background:red;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
 
-    .hero{
-      background:linear-gradient(135deg, rgba(255,34,51,.14), rgba(255,255,255,.05));
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:24px;
-      box-shadow:0 0 35px rgba(0,0,0,.35);
-      backdrop-filter: blur(10px);
-    }
-
-    h1{
-      margin:0;
-      font-size:38px;
-      color:#fff;
-      text-shadow:0 0 18px rgba(255,34,51,.45);
-    }
-
-    p{
-      margin:10px 0 0;
-      color:var(--muted);
-    }
-
-    .top{
-      display:grid;
-      grid-template-columns: 1.6fr 1fr 1fr;
-      gap:14px;
-      margin-top:18px;
-    }
-
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      backdrop-filter: blur(8px);
-    }
-
-    label{
-      display:block;
-      margin-bottom:8px;
-      font-weight:700;
-    }
-
-    input, select{
-      width:100%;
-      border:none;
-      outline:none;
-      border-radius:12px;
-      padding:12px 14px;
-      background:#0d1018;
-      color:var(--text);
-      border:1px solid rgba(255,255,255,.12);
-    }
-
-    .btns{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-top:16px;
-    }
-
-    button{
-      border:none;
-      border-radius:12px;
-      padding:12px 18px;
-      cursor:pointer;
-      font-weight:700;
-      color:#fff;
-      transition:.2s;
-    }
-
-    .primary{
-      background:linear-gradient(90deg, var(--red), #ff7a18);
-    }
-
-    .ghost{
-      background:linear-gradient(90deg, #222633, #2d3243);
-    }
-
-    button:hover{transform:translateY(-1px);filter:brightness(1.08)}
-
-    .layout{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:18px;
-      margin-top:18px;
-    }
-
-    .row{
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:14px;
-      padding:14px;
-      margin-bottom:12px;
-    }
-
-    .row-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
-    }
-
-    .val{
-      color:#ffd2d6;
-      font-weight:800;
-      min-width:38px;
-      text-align:right;
-    }
-
-    input[type="range"]{
-      width:100%;
-      accent-color:#ff3344;
-    }
-
-    .result{
-      display:grid;
-      gap:12px;
-    }
-
-    .pill{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      background:rgba(0,0,0,.2);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:14px;
-      padding:14px 16px;
-    }
-
-    .tag{
-      font-size:12px;
-      color:#a9b2c7;
-    }
-
-    .good{
-      color:#7CFFB2;
-      font-weight:800;
-    }
-
-    .note{
-      margin-top:12px;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.5;
-    }
-
-    .footer{
-      margin-top:14px;
-      color:#9ca8c2;
-      font-size:13px;
-    }
-
-    @media (max-width: 900px){
-      .top, .layout{grid-template-columns:1fr}
-      h1{font-size:30px}
-    }
-  </style>
+button:hover{
+box-shadow:0 0 20px red;
+}
+</style>
 </head>
+
 <body>
-  <div class="net"></div>
 
-  <div class="wrap">
-    <div class="hero">
-      <h1>Free Fire Hassasiyet</h1>
-      <p>Model yaz, platform seç, her telefona farklı hassasiyet üreten basit bir site.</p>
+<canvas id="bg"></canvas>
 
-      <div class="top">
-        <div class="card">
-          <label for="model">Telefon modeli</label>
-          <input id="model" type="text" placeholder="Örn: iPhone 13, Redmi Note 12, Galaxy A34" />
-        </div>
+<div class="container">
 
-        <div class="card">
-          <label for="platform">Platform</label>
-          <select id="platform">
-            <option value="iphone">iPhone</option>
-            <option value="android">Android</option>
-            <option value="pc">PC</option>
-          </select>
-        </div>
+<h1>wedzXsensi V3</h1>
 
-        <div class="card">
-          <label for="style">Stil</label>
-          <select id="style">
-            <option value="balanced">Dengeli</option>
-            <option value="rush">Rush</option>
-            <option value="drag">Drag Headshot</option>
-            <option value="sniper">Sniper</option>
-          </select>
-        </div>
-      </div>
+<!-- 📱 TELEFON -->
+<div class="card">
+<h3>📱 Telefon</h3>
 
-      <div class="btns">
-        <button class="primary" onclick="generate()">Hassasiyet Oluştur</button>
-        <button class="ghost" onclick="sample()">Örnek Doldur</button>
-        <button class="ghost" onclick="resetAll()">Sıfırla</button>
-      </div>
-    </div>
+<select id="brand" onchange="loadModels()">
+<option>Marka</option>
+<option>Apple</option>
+<option>Samsung</option>
+<option>Xiaomi</option>
+<option>Redmi</option>
+<option>POCO</option>
+<option>Huawei</option>
+<option>OPPO</option>
+<option>Vivo</option>
+</select>
 
-    <div class="layout">
-      <div class="card">
-        <h2 style="margin-top:0">Ayarlar</h2>
+<select id="model">
+<option>Önce marka seç</option>
+</select>
+</div>
 
-        <div class="row">
-          <div class="row-head"><span>Genel</span><span class="val" id="generalVal">90</span></div>
-          <input type="range" id="general" min="0" max="200" value="90" oninput="sync('general')">
-        </div>
+<!-- 💻 PC -->
+<div class="card">
+<h3>💻 PC</h3>
 
-        <div class="row">
-          <div class="row-head"><span>Red Dot</span><span class="val" id="redVal">85</span></div>
-          <input type="range" id="red" min="0" max="200" value="85" oninput="sync('red')">
-        </div>
+<select id="cpu">
+<option>CPU</option>
+<option>i5</option>
+<option>i7</option>
+<option>Ryzen 5</option>
+<option>Ryzen 7</option>
+</select>
 
-        <div class="row">
-          <div class="row-head"><span>2x Scope</span><span class="val" id="twoVal">80</span></div>
-          <input type="range" id="two" min="0" max="200" value="80" oninput="sync('two')">
-        </div>
+<select id="gpu">
+<option>GPU</option>
+<option>GTX 1660</option>
+<option>RTX 3060</option>
+<option>RTX 4060</option>
+</select>
 
-        <div class="row">
-          <div class="row-head"><span>4x Scope</span><span class="val" id="fourVal">75</span></div>
-          <input type="range" id="four" min="0" max="200" value="75" oninput="sync('four')">
-        </div>
+<select id="fps">
+<option>FPS</option>
+<option>60</option>
+<option>120</option>
+<option>144</option>
+<option>240</option>
+</select>
 
-        <div class="row">
-          <div class="row-head"><span>AWM / Sniper</span><span class="val" id="awmVal">50</span></div>
-          <input type="range" id="awm" min="0" max="200" value="50" oninput="sync('awm')">
-        </div>
+<input id="dpi" placeholder="DPI">
 
-        <div class="row">
-          <div class="row-head"><span>Free Look</span><span class="val" id="lookVal">60</span></div>
-          <input type="range" id="look" min="0" max="200" value="60" oninput="sync('look')">
-        </div>
+<button onclick="startAI()">Analiz Başlat</button>
 
-        <p class="note">Bu örnekte aralıklar cihaz türüne göre değişir; Android için 100-200, iPhone için 40-100, PC için 0-80 mantığıyla öneri üretilir.</p>
-      </div>
+</div>
 
-      <div class="card">
-        <h2 style="margin-top:0">AI öneri sonucu</h2>
-        <div class="result">
-          <div class="pill"><span>Model</span><strong id="outModel">-</strong></div>
-          <div class="pill"><span>Platform</span><strong id="outPlatform">-</strong></div>
-          <div class="pill"><span>Genel</span><strong id="outGeneral">-</strong></div>
-          <div class="pill"><span>Red Dot</span><strong id="outRed">-</strong></div>
-          <div class="pill"><span>2x Scope</span><strong id="outTwo">-</strong></div>
-          <div class="pill"><span>4x Scope</span><strong id="outFour">-</strong></div>
-          <div class="pill"><span>AWM / Sniper</span><strong id="outAwm">-</strong></div>
-          <div class="pill"><span>Free Look</span><strong id="outLook">-</strong></div>
-        </div>
+</div>
 
-        <p class="note">Bu sistem “aynı cihazda hep aynı ayar” vermemek için model adına göre küçük farklar ekler. Headshot garantisi vermez, ama farklı cihazlar için daha doğal öneriler üretir.</p>
-      </div>
-    </div>
+<script>
 
-    <div class="footer">Neon kırmızı ağ animasyonu • Free Fire hassasiyet sitesi örneği</div>
-  </div>
+/* 🔴 NEON AĞ */
+const canvas=document.getElementById("bg");
+const ctx=canvas.getContext("2d");
 
-  <script>
-    function clamp(n, min, max) {
-      return Math.max(min, Math.min(max, n));
-    }
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
 
-    function hashString(str) {
-      let h = 0;
-      for (let i = 0; i < str.length; i++) {
-        h = ((h << 5) - h) + str.charCodeAt(i);
-        h |= 0;
-      }
-      return Math.abs(h);
-    }
+let dots=[];
 
-    function rand(seed, min, max) {
-      const x = Math.sin(seed) * 10000;
-      return Math.floor((x - Math.floor(x)) * (max - min + 1)) + min;
-    }
+for(let i=0;i<80;i++){
+dots.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+vx:(Math.random()-0.5)*1,
+vy:(Math.random()-0.5)*1
+});
+}
 
-    function bounds(platform) {
-      if (platform === "iphone") return { min: 40, max: 100 };
-      if (platform === "pc") return { min: 0, max: 80 };
-      return { min: 100, max: 200 };
-    }
+function draw(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    function styleOffsets(style) {
-      if (style === "rush") return [8, 6, 4, 2, 0, 5];
-      if (style === "drag") return [12, 10, 8, 5, 3, 7];
-      if (style === "sniper") return [-10, -8, -6, -4, 0, -8];
-      return [0, -2, -4, -6, -8, -4];
-    }
+for(let i=0;i<dots.length;i++){
+let d=dots[i];
 
-    function sync(id) {
-      document.getElementById(id + "Val").textContent = document.getElementById(id).value;
-    }
+d.x+=d.vx;
+d.y+=d.vy;
 
-    function generate() {
-      const model = document.getElementById("model").value.trim() || "Unknown Device";
-      const platform = document.getElementById("platform").value;
-      const style = document.getElementById("style").value;
+if(d.x<0||d.x>canvas.width)d.vx*=-1;
+if(d.y<0||d.y>canvas.height)d.vy*=-1;
 
-      const b = bounds(platform);
-      const seed = hashString(model + "|" + platform + "|" + style);
-      const offsets = styleOffsets(style);
+ctx.fillStyle="red";
+ctx.shadowBlur=15;
+ctx.shadowColor="red";
 
-      let base;
-      if (platform === "iphone") base = [82, 76, 70, 64, 52, 62];
-      else if (platform === "pc") base = [65, 58, 52, 45, 35, 48];
-      else base = [170, 160, 150, 140, 125, 145];
+ctx.beginPath();
+ctx.arc(d.x,d.y,2,0,Math.PI*2);
+ctx.fill();
 
-      const ids = ["general", "red", "two", "four", "awm", "look"];
-      const vals = ids.map((id, i) => {
-        const noise = rand(seed + (i + 1) * 97, -6, 6);
-        const value = clamp(Math.round(base[i] + offsets[i] + noise), b.min, b.max);
-        document.getElementById(id).value = value;
-        sync(id);
-        return value;
-      });
+for(let j=i+1;j<dots.length;j++){
+let d2=dots[j];
+let dx=d.x-d2.x;
+let dy=d.y-d2.y;
+let dist=Math.sqrt(dx*dx+dy*dy);
 
-      document.getElementById("outModel").textContent = model;
-      document.getElementById("outPlatform").textContent = platform.toUpperCase();
-      document.getElementById("outGeneral").textContent = vals[0];
-      document.getElementById("outRed").textContent = vals[1];
-      document.getElementById("outTwo").textContent = vals[2];
-      document.getElementById("outFour").textContent = vals[3];
-      document.getElementById("outAwm").textContent = vals[4];
-      document.getElementById("outLook").textContent = vals[5];
-    }
+if(dist<120){
+ctx.beginPath();
+ctx.moveTo(d.x,d.y);
+ctx.lineTo(d2.x,d2.y);
+ctx.strokeStyle="red";
+ctx.globalAlpha=1-dist/120;
+ctx.stroke();
+ctx.globalAlpha=1;
+}
+}
+}
 
-    function sample() {
-      document.getElementById("model").value = "Samsung Galaxy A54";
-      document.getElementById("platform").value = "android";
-      document.getElementById("style").value = "drag";
-      generate();
-    }
+requestAnimationFrame(draw);
+}
+draw();
 
-    function resetAll() {
-      document.getElementById("model").value = "";
-      document.getElementById("platform").value = "iphone";
-      document.getElementById("style").value = "balanced";
+/* 📱 MODELLER */
+const models={
+Apple:["iPhone 11","iPhone 12","iPhone 13","iPhone 14","iPhone 15"],
+Samsung:["S21","S22","S23","S24"],
+Xiaomi:["Mi 11","Mi 12","Mi 13"],
+Redmi:["Note 10","Note 11","Note 12"],
+POCO:["X3","X5","F5"],
+Huawei:["P30","P40","P50"],
+OPPO:["Reno 8","Reno 9"],
+Vivo:["V27","V29"]
+};
 
-      const defaults = {
-        general: 90,
-        red: 85,
-        two: 80,
-        four: 75,
-        awm: 50,
-        look: 60
-      };
+function loadModels(){
+let brand=document.getElementById("brand").value;
+let model=document.getElementById("model");
 
-      Object.keys(defaults).forEach(id => {
-        document.getElementById(id).value = defaults[id];
-        sync(id);
-      });
+model.innerHTML="";
 
-      ["outModel","outPlatform","outGeneral","outRed","outTwo","outFour","outAwm","outLook"].forEach(id => {
-        document.getElementById(id).textContent = "-";
-      });
-    }
+if(models[brand]){
+models[brand].forEach(m=>{
+let opt=document.createElement("option");
+opt.textContent=m;
+model.appendChild(opt);
+});
+}
+}
 
-    generate();
-  </script>
+/* 🤖 ANALİZ */
+function startAI(){
+
+let brand=document.getElementById("brand").value;
+let model=document.getElementById("model").value;
+let cpu=document.getElementById("cpu").value;
+let gpu=document.getElementById("gpu").value;
+let fps=document.getElementById("fps").value;
+let dpi=document.getElementById("dpi").value;
+
+if(!brand||!model||!cpu||!gpu||!fps||!dpi){
+alert("Eksik bilgi");
+return;
+}
+
+let sens=Math.floor(Math.random()*90+30);
+let headshot=Math.floor(Math.random()*40+60);
+
+let msg="📱 "+brand+" "+model+
+"\n💻 "+cpu+" + "+gpu+
+"\n🎯 Sens: "+sens+
+"\n🔥 Headshot: "+headshot+"%";
+
+alert(msg);
+
+}
+
+</script>
+
 </body>
 </html>
