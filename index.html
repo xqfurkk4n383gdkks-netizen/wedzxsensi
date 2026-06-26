@@ -1,398 +1,1614 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WedzXsensi V4</title>
 
+<style>
 
-aim-config-ai
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
 
-Buy
+body{
+background:#000;
+color:white;
+overflow-x:hidden;
+min-height:100vh;
+}
 
-Loading...
-Hey Furki, Quick input needed :
-Agent will continue working after your reply
-Tabi! İşte tüm kodlar:
+canvas{
+position:fixed;
+left:0;
+top:0;
+width:100%;
+height:100%;
+z-index:-1;
+}
 
-📁 1. Backend — /app/backend/server.py
-from fastapi import FastAPI, APIRouter, HTTPException
-from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
-import os
-import json
-import re
-import logging
-from pathlib import Path
-from pydantic import BaseModel, Field
-from datetime import datetime, timezone
-import uuid
+nav{
+width:100%;
+height:70px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 40px;
+background:rgba(0,0,0,.45);
+backdrop-filter:blur(12px);
+border-bottom:1px solid rgba(255,255,255,.08);
+}
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+.logo{
+font-size:30px;
+font-weight:bold;
+color:#ff2b2b;
+text-shadow:0 0 20px red;
+}
 
+.menu{
+display:flex;
+gap:20px;
+}
 
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+.menu a{
+color:white;
+text-decoration:none;
+transition:.3s;
+}
 
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+.menu a:hover{
+color:#00ff99;
+}
 
-EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+.hero{
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+height:90vh;
+text-align:center;
+padding:20px;
+}
 
-app = FastAPI()
-api_router = APIRouter(prefix="/api")
+.hero h1{
+font-size:70px;
+margin-bottom:20px;
+background:linear-gradient(90deg,#ff0000,#00ffff,#00ff00);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
 
+.hero p{
+max-width:700px;
+font-size:18px;
+opacity:.9;
+margin-bottom:40px;
+}
 
-class GenerateRequest(BaseModel):
-    device: str = Field(..., min_length=1, max_length=80)
-    fps: int = Field(..., ge=30, le=240)
+.card{
+width:90%;
+max-width:900px;
+background:rgba(255,255,255,.08);
+border:1px solid rgba(255,255,255,.1);
+border-radius:20px;
+backdrop-filter:blur(15px);
+padding:30px;
+box-shadow:0 0 30px rgba(255,0,0,.2);
+}
 
+.row{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:20px;
+margin-bottom:20px;
+}
 
-class Sensitivity(BaseModel):
-    general: int
-    redDot: int
-    scope2x: int
-    scope4x: int
-    sniper: int
-    freeLook: int
+select,input{
+width:100%;
+padding:14px;
+background:#111;
+border:1px solid #333;
+border-radius:10px;
+color:white;
+outline:none;
+}
 
+button{
+width:100%;
+padding:15px;
+border:none;
+border-radius:12px;
+font-size:17px;
+cursor:pointer;
+background:linear-gradient(90deg,#ff0000,#0099ff,#00ff66);
+color:white;
+font-weight:bold;
+transition:.3s;
+}
 
-class GenerateResponse(BaseModel):
-    id: str
-    device: str
-    fps: int
-    sensitivity: Sensitivity
-    tip: str
-    created_at: str
+button:hover{
+transform:scale(1.03);
+box-shadow:0 0 20px red;
+}
 
+.result{
+margin-top:25px;
+padding:20px;
+background:#111;
+border-radius:15px;
+display:none;
+}
 
-SYSTEM_MSG = (
-    "You are an expert Free Fire mobile esports coach. "
-    "Given a phone/device model and a target FPS, you produce optimized in-game "
-    "sensitivity values for Free Fire. Tune based on chipset class (flagship vs mid vs entry), "
-    "screen refresh rate, touch responsiveness, and FPS target. Higher FPS allows slightly "
-    "higher values for general/aim, but sniper must stay controlled (typically 70-140). "
-    "Free Look should always be 200. Provide a short pro tip in Turkish. "
-    "Return ONLY a compact JSON object (no markdown, no commentary) with this exact schema: "
-    '{"general": int 100-200, "redDot": int 100-200, "scope2x": int 100-200, '
-    '"scope4x": int 100-200, "sniper": int 60-160, "freeLook": 200, "tip": "Turkish short tip"}. '
-    "All sensitivity ints must be realistic for Free Fire (0-200 range)."
-)
+.value{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid #222;
+}
 
+</style>
+</head>
 
-def _extract_json(text: str) -> dict:
-    text = text.strip()
-    text = re.sub(r'^```(?:json)?\s*', '', text)
-    text = re.sub(r'\s*```$', '', text)
-    match = re.search(r'\{[\s\S]*\}', text)
-    if not match:
-        raise ValueError("No JSON object found in LLM response")
-    return json.loads(match.group(0))
+<body>
 
+<canvas id="bg"></canvas>
 
-def _clamp(v, lo, hi):
-    try:
-        v = int(v)
-    except (TypeError, ValueError):
-        v = lo
-    return max(lo, min(hi, v))
+<nav>
 
+<div class="logo">
+WedzXsensi V4
+</div>
 
-@api_router.get("/")
-async def root():
-    return {"message": "wedzXsensi API running"}
+<div class="menu">
+<a href="#">Ana Sayfa</a>
+<a href="#">AI</a>
+<a href="#">Hassasiyet</a>
+<a href="#">İletişim</a>
+</div>
 
+</nav>
 
-@api_router.post("/generate", response_model=GenerateResponse)
-async def generate_sensitivity(payload: GenerateRequest):
-    if not EMERGENT_LLM_KEY:
-        raise HTTPException(status_code=500, detail="LLM key not configured")
+<section class="hero">
 
-    session_id = f"wedzxsensi-{uuid.uuid4()}"
-    chat = LlmChat(
-        api_key=EMERGENT_LLM_KEY,
-        session_id=session_id,
-        system_message=SYSTEM_MSG,
-    ).with_model("anthropic", "claude-sonnet-4-5-20250929")
+<h1>AI Sensitivity Generator</h1>
 
-    user_prompt = (
-        f"Cihaz Modeli: {payload.device}\n"
-        f"Hedef FPS: {payload.fps}\n"
-        f"Oyun: Free Fire\n"
-        "Bu cihaz ve FPS için optimum Free Fire hassasiyet değerlerini üret. "
-        "Sadece JSON döndür."
-    )
+<p>
 
-    try:
-        response_text = await chat.send_message(UserMessage(text=user_prompt))
-    except Exception as e:
-        logger.exception("LLM call failed")
-        raise HTTPException(status_code=502, detail=f"LLM error: {str(e)[:200]}")
+Android • iPhone • PC için yapay zekâ destekli optimize edilmiş Free Fire hassasiyet oluşturucu.
 
-    try:
-        data = _extract_json(response_text)
-    except Exception as e:
-        logger.error(f"Failed to parse LLM output: {response_text}")
-        raise HTTPException(status_code=502, detail=f"Parse error: {e}")
+</p>
 
-    sens = Sensitivity(
-        general=_clamp(data.get("general"), 100, 200),
-        redDot=_clamp(data.get("redDot"), 100, 200),
-        scope2x=_clamp(data.get("scope2x"), 100, 200),
-        scope4x=_clamp(data.get("scope4x"), 100, 200),
-        sniper=_clamp(data.get("sniper"), 60, 160),
-        freeLook=200,
-    )
-    tip = str(data.get("tip", "")).strip()[:280] or "Cihazına göre optimize edildi."
+<div class="card">
 
-    result = GenerateResponse(
-        id=str(uuid.uuid4()),
-        device=payload.device,
-        fps=payload.fps,
-        sensitivity=sens,
-        tip=tip,
-        created_at=datetime.now(timezone.utc).isoformat(),
-    )
+<div class="row">
 
-    try:
-        await db.sensitivity_history.insert_one(result.model_dump())
-    except Exception:
-        logger.exception("DB insert failed (non-fatal)")
+<select id="platform">
 
-    return result
+<option>Android</option>
 
+<option>iPhone</option>
 
-app.include_router(api_router)
+<option>PC</option>
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+</select>
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+<input
+type="text"
+id="model"
+placeholder="Telefon Modelini Yaz">
 
+</div>
+<div class="row">
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
-📁 2. Backend .env — /app/backend/.env
-MONGO_URL="mongodb://localhost:27017"
-DB_NAME="test_database"
-CORS_ORIGINS="*"
-EMERGENT_LLM_KEY=sk-emergent-7C529Da6899A1Ad3b0
-📁 3. Frontend — /app/frontend/src/App.js
-import { useEffect, useRef, useState } from "react";
-import "@/App.css";
+<select id="brand">
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+<option>Samsung</option>
+<option>Xiaomi</option>
+<option>Redmi</option>
+<option>POCO</option>
+<option>Realme</option>
+<option>Oppo</option>
+<option>Vivo</option>
+<option>Huawei</option>
+<option>Infinix</option>
+<option>Tecno</option>
+<option>OnePlus</option>
+<option>ASUS</option>
+<option>Motorola</option>
+<option>Google Pixel</option>
+<option>Apple</option>
 
-const DEVICE_SUGGESTIONS = [
-  "iPhone 15 Pro Max", "iPhone 13", "Samsung Galaxy S24 Ultra",
-  "Samsung Galaxy A54", "Xiaomi Redmi Note 13", "Xiaomi Poco X6 Pro",
-  "Realme 12 Pro", "Oppo Reno 11", "Tecno Camon 20", "Infinix Hot 40",
+</select>
+
+<select id="fps">
+
+<option>30 FPS</option>
+<option>60 FPS</option>
+<option>90 FPS</option>
+<option>120 FPS</option>
+<option>144 FPS</option>
+<option>165 FPS</option>
+<option>180 FPS</option>
+<option>200 FPS</option>
+<option>240 FPS</option>
+
+</select>
+
+</div>
+
+<div class="row">
+
+<select id="style">
+
+<option>Headshot</option>
+<option>Drag</option>
+<option>Genel</option>
+<option>Yakın Mesafe</option>
+<option>Uzak Mesafe</option>
+
+</select>
+
+<select id="level">
+
+<option>Normal</option>
+<option>Profesyonel</option>
+<option>Turnuva</option>
+
+</select>
+
+</div>
+
+<button onclick="generateAI()">
+
+AI Hassasiyet Oluştur
+
+</button>
+
+<div class="result" id="result">
+
+<div class="value">
+<span>Genel</span>
+<b id="genel">0</b>
+</div>
+
+<div class="value">
+<span>Red Dot</span>
+<b id="reddot">0</b>
+</div>
+
+<div class="value">
+<span>2X Scope</span>
+<b id="x2">0</b>
+</div>
+
+<div class="value">
+<span>4X Scope</span>
+<b id="x4">0</b>
+</div>
+
+<div class="value">
+<span>AWM</span>
+<b id="sniper">0</b>
+</div>
+
+<div class="value">
+<span>Free Look</span>
+<b id="freelook">0</b>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<script>
+
+const canvas=document.getElementById("bg");
+
+const ctx=canvas.getContext("2d");
+
+canvas.width=window.innerWidth;
+
+canvas.height=window.innerHeight;
+
+let particles=[];
+
+for(let i=0;i<120;i++){
+
+particles.push({
+
+x:Math.random()*canvas.width,
+
+y:Math.random()*canvas.height,
+
+vx:(Math.random()-.5)*1,
+
+vy:(Math.random()-.5)*1,
+
+r:2+Math.random()*2,
+
+c:[
+"#ff0000",
+"#00ffff",
+"#00ff66"
+][Math.floor(Math.random()*3)]
+
+});
+
+}
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+particles.forEach(p=>{
+
+ctx.beginPath();
+
+ctx.fillStyle=p.c;
+
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+
+ctx.fill();
+
+p.x+=p.vx;
+
+p.y+=p.vy;
+
+if(p.x<0||p.x>canvas.width)p.vx*=-1;
+
+if(p.y<0||p.y>canvas.height)p.vy*=-1;
+
+});
+
+requestAnimationFrame(draw);
+
+}
+
+draw();
+
+function rand(min,max){
+return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function optimize(min,max,fps){
+
+let value=rand(min,max);
+
+if(fps>=120)value+=rand(2,8);
+if(fps>=165)value+=rand(2,5);
+if(fps>=240)value+=rand(2,4);
+
+if(value>max)value=max;
+
+return value;
+
+}
+
+function generateAI(){
+
+const platform=document.getElementById("platform").value;
+
+const fps=parseInt(
+document.getElementById("fps").value
+);
+
+let min=0;
+let max=0;
+
+if(platform==="Android"){
+
+min=100;
+max=200;
+
+}
+
+if(platform==="iPhone"){
+
+min=40;
+max=100;
+
+}
+
+if(platform==="PC"){
+
+min=0;
+max=80;
+
+}
+
+let general=optimize(min,max,fps);
+
+let redDot=optimize(min,max,fps);
+
+let scope2=optimize(min,max,fps);
+
+let scope4=optimize(min,max,fps);
+
+let sniper=optimize(min,max,fps);
+
+let freeLook=optimize(min,max,fps);
+
+document.getElementById("genel").innerHTML=general;
+
+document.getElementById("reddot").innerHTML=redDot;
+
+document.getElementById("x2").innerHTML=scope2;
+
+document.getElementById("x4").innerHTML=scope4;
+
+document.getElementById("sniper").innerHTML=sniper;
+
+document.getElementById("freelook").innerHTML=freeLook;
+
+document.getElementById("result").style.display="block";
+
+}
+
+window.addEventListener("resize",()=>{
+
+canvas.width=window.innerW
+
+if(platform==="Android"){
+return {min:100,max:200};
+}
+
+if(platform==="iPhone"){
+return {min:40,max:100};
+}
+
+return {min:0,max:80};
+
+}
+
+function random(min,max){
+
+return Math.floor(Math.random()*(max-min+1))+min;
+
+}
+
+function aiValue(platform,fps,type){
+
+const range=aiRange(platform);
+
+let value=random(range.min,range.max);
+
+const bonus=Math.floor(fps/30);
+
+value+=random(0,bonus);
+
+switch(type){
+
+case "general":
+value+=4;
+break;
+
+case "red":
+value+=6;
+break;
+
+case "scope2":
+value-=2;
+break;
+
+case "scope4":
+value-=5;
+break;
+
+case "sniper":
+value-=8;
+break;
+
+case "free":
+value+=2;
+break;
+
+}
+
+if(value>range.max)value=range.max;
+
+if(value<range.min)value=range.min;
+
+return value;
+
+}
+
+function generateAI(){
+
+const platform=document.getElementById("platform").value;
+
+const fps=parseInt(
+document.getElementById("fps").value
+);
+
+const model=document.getElementById("model").value;
+
+const brand=document.getElementById("brand").value;
+
+let general=aiValue(platform,fps,"general");
+
+let red=aiValue(platform,fps,"red");
+
+let two=aiValue(platform,fps,"scope2");
+
+let four=aiValue(platform,fps,"scope4");
+
+let sniper=aiValue(platform,fps,"sniper");
+
+let free=aiValue(platform,fps,"free");
+
+if(model.toLowerCase().includes("pro")){
+
+general+=2;
+red+=2;
+
+}
+
+if(model.toLowerCase().includes("ultra")){
+
+general+=3;
+red+=3;
+
+}
+
+if(model.toLowerCase().includes("max")){
+
+general+=2;
+
+}
+
+if(brand==="Apple"){
+
+red+=2;
+
+}
+
+if(brand==="Samsung"){
+
+general+=1;
+
+}
+
+document.getElementById("genel").innerHTML=general;
+
+document.getElementById("reddot").innerHTML=red;
+
+document.getElementById("x2").innerHTML=two;
+
+document.getElementById("x4").innerHTML=four;
+
+document.getElementById("sniper").innerHTML=sniper;
+
+document.getElementById("freelook").innerHTML=free;
+
+document.getElementById("result").style.display="block";
+
+}
+
+/* ===========================
+   WedzXsensi V4 - PART 5
+=========================== */
+
+function copySensitivity(){
+
+let text=`
+Platform : ${document.getElementById("platform").value}
+
+Marka : ${document.getElementById("brand").value}
+
+Model : ${document.getElementById("model").value}
+
+FPS : ${document.getElementById("fps").value}
+
+Genel : ${document.getElementById("genel").innerHTML}
+
+Red Dot : ${document.getElementById("reddot").innerHTML}
+
+2X : ${document.getElementById("x2").innerHTML}
+
+4X : ${document.getElementById("x4").innerHTML}
+
+Sniper : ${document.getElementById("sniper").innerHTML}
+
+Free Look : ${document.getElementById("freelook").innerHTML}
+`;
+
+navigator.clipboard.writeText(text);
+
+alert("Hassasiyet panoya kopyalandı.");
+
+}
+
+function newAnalyze(){
+
+generateAI();
+
+}
+
+function saveHistory(){
+
+let history={
+
+date:new Date().toLocaleString(),
+
+platform:document.getElementById("platform").value,
+
+brand:document.getElementById("brand").value,
+
+model:document.getElementById("model").value,
+
+fps:document.getElementById("fps").value,
+
+general:document.getElementById("genel").innerHTML,
+
+red:document.getElementById("reddot").innerHTML,
+
+two:document.getElementById("x2").innerHTML,
+
+four:document.getElementById("x4").innerHTML,
+
+sniper:document.getElementById("sniper").innerHTML,
+
+free:document.getElementById("freelook").innerHTML
+
+};
+
+localStorage.setItem(
+
+"wedzxsensi_last",
+
+JSON.stringify(history)
+
+);
+
+}
+
+function loadHistory(){
+
+let data=localStorage.getItem(
+
+"wedzxsensi_last"
+
+);
+
+if(!data)return;
+
+data=JSON.parse(data);
+
+document.getElementById("genel").innerHTML=data.general;
+
+document.getElementById("reddot").innerHTML=data.red;
+
+document.getElementById("x2").innerHTML=data.two;
+
+document.getElementById("x4").innerHTML=data.four;
+
+document.getElementById("sniper").innerHTML=data.sniper;
+
+document.getElementById("freelook").innerHTML=data.free;
+
+document.getElementById("result").style.display="block";
+
+}
+
+window.onload=function(){
+
+loadHistory();
+
+};
+
+const oldGenerate=generateAI;
+
+generateAI=function(){
+
+oldGenerate();
+
+saveHistory();
+
+};
+
+<br><br>
+
+<button onclick="copySensitivity()">
+
+Hassasiyeti Kopyala
+
+</button>
+
+<br><br>
+
+<button onclick="newAnalyze()">
+
+Yeniden AI Analizi Yap
+
+</button>
+
+/* ===========================
+   WedzXsensi V4 - PART 6
+   Brand + Play Style Optimizer
+=========================== */
+
+function getBrandBonus(brand){
+
+switch(brand){
+
+case "Samsung":
+return {
+general:2,
+red:3,
+two:1,
+four:0,
+sniper:-1,
+free:2
+};
+
+case "Xiaomi":
+case "Redmi":
+return {
+general:3,
+red:4,
+two:2,
+four:1,
+sniper:-2,
+free:3
+};
+
+case "POCO":
+return {
+general:4,
+red:5,
+two:3,
+four:1,
+sniper:-2,
+free:4
+};
+
+case "Apple":
+return {
+general:1,
+red:2,
+two:1,
+four:0,
+sniper:0,
+free:1
+};
+
+case "OnePlus":
+return {
+general:3,
+red:4,
+two:2,
+four:1,
+sniper:-1,
+free:3
+};
+
+default:
+
+return {
+general:0,
+red:0,
+two:0,
+four:0,
+sniper:0,
+free:0
+};
+
+}
+
+}
+
+function getStyleBonus(style){
+
+switch(style){
+
+case "Headshot":
+
+return{
+general:4,
+red:8,
+two:3,
+four:0,
+sniper:-2,
+free:4
+};
+
+case "Drag":
+
+return{
+general:5,
+red:7,
+two:4,
+four:1,
+sniper:-3,
+free:5
+};
+
+case "Yakın Mesafe":
+
+return{
+general:6,
+red:6,
+two:2,
+four:-1,
+sniper:-4,
+free:6
+};
+
+case "Uzak Mesafe":
+
+return{
+general:-2,
+red:0,
+two:4,
+four:6,
+sniper:6,
+free:-2
+};
+
+default:
+
+return{
+general:0,
+red:0,
+two:0,
+four:0,
+sniper:0,
+free:0
+};
+
+}
+
+}
+
+function limit(v,min,max){
+
+if(v<min)return min;
+
+if(v>max)return max;
+
+return v;
+
+}
+
+function applyOptimizer(values){
+
+const platform=document.getElementById("platform").value;
+
+const brand=document.getElementById("brand").value;
+
+const style=document.getElementById("style").value;
+
+const range=aiRange(platform);
+
+const b=getBrandBonus(brand);
+
+const s=getStyleBonus(style);
+
+values.general=
+limit(values.general+b.general+s.general,
+range.min,
+range.max);
+
+values.red=
+limit(values.red+b.red+s.red,
+range.min,
+range.max);
+
+values.two=
+limit(values.two+b.two+s.two,
+range.min,
+range.max);
+
+values.four=
+limit(values.four+b.four+s.four,
+range.min,
+range.max);
+
+values.sniper=
+limit(values.sniper+b.sniper+s.sniper,
+range.min,
+range.max);
+
+values.free=
+limit(values.free+b.free+s.free,
+range.min,
+range.max);
+
+return values;
+
+}
+
+/* ===========================
+   WedzXsensi V4 - PART 7
+   Model Optimizer + AI Engine
+=========================== */
+
+function getModelBonus(model){
+
+model=model.toLowerCase();
+
+let bonus=0;
+
+if(model.includes("pro")) bonus+=3;
+
+if(model.includes("plus")) bonus+=2;
+
+if(model.includes("ultra")) bonus+=5;
+
+if(model.includes("max")) bonus+=4;
+
+if(model.includes("gaming")) bonus+=6;
+
+if(model.includes("gt")) bonus+=3;
+
+if(model.includes("neo")) bonus+=2;
+
+if(model.includes("turbo")) bonus+=4;
+
+return bonus;
+
+}
+
+function generateAI(){
+
+const platform=document.getElementById("platform").value;
+
+const fps=parseInt(document.getElementById("fps").value);
+
+const model=document.getElementById("model").value;
+
+let values={
+
+general:aiValue(platform,fps,"general"),
+
+red:aiValue(platform,fps,"red"),
+
+two:aiValue(platform,fps,"scope2"),
+
+four:aiValue(platform,fps,"scope4"),
+
+sniper:aiValue(platform,fps,"sniper"),
+
+free:aiValue(platform,fps,"free")
+
+};
+
+values=applyOptimizer(values);
+
+const modelBonus=getModelBonus(model);
+
+const range=aiRange(platform);
+
+values.general=limit(values.general+modelBonus,range.min,range.max);
+
+values.red=limit(values.red+modelBonus,range.min,range.max);
+
+values.two=limit(values.two+Math.floor(modelBonus/2),range.min,range.max);
+
+values.four=limit(values.four+Math.floor(modelBonus/3),range.min,range.max);
+
+values.sniper=limit(values.sniper,range.min,range.max);
+
+values.free=limit(values.free+Math.floor(modelBonus/2),range.min,range.max);
+
+document.getElementById("genel").innerHTML=values.general;
+
+document.getElementById("reddot").innerHTML=values.red;
+
+document.getElementById("x2").innerHTML=values.two;
+
+document.getElementById("x4").innerHTML=values.four;
+
+document.getElementById("sniper").innerHTML=values.sniper;
+
+document.getElementById("freelook").innerHTML=values.free;
+
+document.getElementById("result").style.display="block";
+
+saveHistory();
+
+}
+
+/* Küçük giriş animasyonu */
+
+document.querySelectorAll("select,input").forEach(el=>{
+
+el.addEventListener("focus",()=>{
+
+el.style.boxShadow="0 0 20px #00ffff";
+
+});
+
+el.addEventListener("blur",()=>{
+
+el.style.boxShadow="none";
+
+});
+
+});
+
+/* ===========================
+   WedzXsensi V4 - PART 8
+   AI Score + Neon Effects
+=========================== */
+
+function calculateScore(values){
+
+let total=
+values.general+
+values.red+
+values.two+
+values.four+
+values.sniper+
+values.free;
+
+let score=Math.floor(total/6);
+
+if(score>100)score=100;
+if(score<50)score=50;
+
+return score;
+
+}
+
+function showScore(score){
+
+let panel=document.getElementById("scorePanel");
+
+if(!panel){
+
+panel=document.createElement("div");
+
+panel.id="scorePanel";
+
+panel.style.marginTop="25px";
+panel.style.padding="20px";
+panel.style.borderRadius="15px";
+panel.style.background="rgba(0,0,0,.55)";
+panel.style.border="1px solid #00ffff";
+panel.style.boxShadow="0 0 25px #00ffff";
+panel.style.textAlign="center";
+
+document.querySelector(".card").appendChild(panel);
+
+}
+
+let color="#00ff66";
+
+if(score<70)color="#ff4444";
+
+if(score>=70&&score<90)color="#ffaa00";
+
+panel.innerHTML=`
+
+<h2 style="color:${color};">
+
+AI Güven Puanı
+
+</h2>
+
+<h1 style="font-size:50px;color:${color};">
+
+${score}%
+
+</h1>
+
+<p>
+
+WedzXsensi V4 AI tarafından optimize edildi.
+
+</p>
+
+`;
+
+}
+
+function animateResult(){
+
+const result=document.getElementById("result");
+
+result.animate([
+
+{
+
+transform:"scale(.8)",
+
+opacity:0
+
+},
+
+{
+
+transform:"scale(1.05)",
+
+opacity:1
+
+},
+
+{
+
+transform:"scale(1)",
+
+opacity:1
+
+}
+
+],{
+
+duration:700,
+
+fill:"forwards"
+
+});
+
+}
+
+function randomGlow(){
+
+const colors=[
+
+"#ff0000",
+
+"#00ffff",
+
+"#00ff66"
+
 ];
 
-function ParticleField() {
-  const canvasRef = useRef(null);
+const c=colors[Math.floor(Math.random()*colors.length)];
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    let raf;
-    let dots = [];
+document.querySelector(".card").style.boxShadow=
 
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      const count = Math.floor((canvas.width * canvas.height) / 9000);
-      dots = Array.from({ length: count }).map(() => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2 + 0.6,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: (Math.random() - 0.5) * 0.6,
-        a: Math.random() * 0.6 + 0.25,
-        pulse: Math.random() * Math.PI * 2,
-      }));
-    };
+`0 0 35px ${c}`;
 
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const grad = ctx.createRadialGradient(
-        canvas.width / 2, canvas.height / 2, 50,
-        canvas.width / 2, canvas.height / 2,
-        Math.max(canvas.width, canvas.height) / 1.2
-      );
-      grad.addColorStop(0, "rgba(40,0,0,0.18)");
-      grad.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      for (const d of dots) {
-        d.x += d.vx; d.y += d.vy; d.pulse += 0.04;
-        if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
-        if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
-
-        const alpha = d.a * (0.6 + 0.4 * Math.sin(d.pulse));
-        const glow = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r * 6);
-        glow.addColorStop(0, `rgba(255,30,30,${alpha})`);
-        glow.addColorStop(1, "rgba(255,0,0,0)");
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r * 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = `rgba(255,80,80,${Math.min(1, alpha + 0.3)})`;
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      raf = requestAnimationFrame(draw);
-    };
-
-    resize();
-    draw();
-    window.addEventListener("resize", resize);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="wx-canvas" />;
 }
 
-function Row({ label, value, max = 200 }) {
-  const pct = Math.max(0, Math.min(100, (value / max) * 100));
-  return (
-    <div className="wx-row">
-      <div className="wx-row-head">
-        <span className="wx-row-label">{label}</span>
-        <span className="wx-row-value">{value}</span>
-      </div>
-      <div className="wx-bar">
-        <div className="wx-bar-fill" style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  );
+setInterval(randomGlow,1800);
+
+const oldGenerateAI=generateAI;
+
+generateAI=function(){
+
+oldGenerateAI();
+
+const values={
+
+general:Number(document.getElementById("genel").innerHTML),
+
+red:Number(document.getElementById("reddot").innerHTML),
+
+two:Number(document.getElementById("x2").innerHTML),
+
+four:Number(document.getElementById("x4").innerHTML),
+
+sniper:Number(document.getElementById("sniper").innerHTML),
+
+free:Number(document.getElementById("freelook").innerHTML)
+
+};
+
+showScore(calculateScore(values));
+
+animateResult();
+
+};
+
+const title=document.querySelector(".logo");
+
+setInterval(()=>{
+
+title.style.textShadow=
+
+`0 0 ${20+Math.random()*30}px red`;
+
+},500);
+
+const hero=document.querySelector(".hero h1");
+
+setInterval(()=>{
+
+hero.style.filter=
+
+`drop-shadow(0 0 ${10+Math.random()*25}px cyan)`;
+
+},600);
+
+/* ===========================
+   WedzXsensi V4 - PART 9
+   Device Database + FPS Engine
+=========================== */
+
+const deviceProfiles={
+
+Samsung:{
+power:92,
+smooth:91,
+drag:90
+},
+
+Xiaomi:{
+power:90,
+smooth:89,
+drag:92
+},
+
+Redmi:{
+power:89,
+smooth:88,
+drag:93
+},
+
+POCO:{
+power:97,
+smooth:96,
+drag:98
+},
+
+Realme:{
+power:88,
+smooth:87,
+drag:89
+},
+
+Oppo:{
+power:87,
+smooth:86,
+drag:86
+},
+
+Vivo:{
+power:88,
+smooth:89,
+drag:88
+},
+
+Huawei:{
+power:86,
+smooth:85,
+drag:84
+},
+
+OnePlus:{
+power:95,
+smooth:96,
+drag:97
+},
+
+Apple:{
+power:99,
+smooth:99,
+drag:95
+},
+
+Motorola:{
+power:85,
+smooth:84,
+drag:84
+},
+
+"Infinix":{
+power:86,
+smooth:87,
+drag:88
+},
+
+Tecno:{
+power:84,
+smooth:84,
+drag:83
+},
+
+"Google Pixel":{
+power:95,
+smooth:96,
+drag:94
 }
 
-export default function App() {
-  const [device, setDevice] = useState("");
-  const [fps, setFps] = useState("60");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState("");
+};
 
-  const generate = async () => {
-    setError("");
-    if (!device.trim()) { setError("Lütfen cihaz modelini girin."); return; }
-    setLoading(true); setResult(null);
-    try {
-      const res = await fetch(`${API}/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ device: device.trim(), fps: parseInt(fps, 10) }),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      setResult(await res.json());
-    } catch (e) {
-      setError("AI çağrısı başarısız. Lütfen tekrar deneyin.");
-    } finally {
-      setLoading(false);
-    }
-  };
+function getFPSBonus(fps){
 
-  const copyAll = async () => {
-    if (!result) return;
-    const s = result.sensitivity;
-    const text = `wedzXsensi — Free Fire\nCihaz: ${result.device} | FPS: ${result.fps}\nGenel: ${s.general}\nKırmızı Nokta: ${s.redDot}\n2x Dürbün: ${s.scope2x}\n4x Dürbün: ${s.scope4x}\nKeskin Nişancı: ${s.sniper}\nSerbest Bakış: ${s.freeLook}`;
-    try { await navigator.clipboard.writeText(text); } catch {}
-  };
+fps=Number(fps);
 
-  return (
-    <div className="wx-app">
-      <ParticleField />
-      <main className="wx-shell">
-        <header className="wx-header">
-          <div className="wx-brand-mark" />
-          <h1 className="wx-brand">wedz<span className="wx-accent">X</span>sensi</h1>
-          <p className="wx-tag">Free Fire · AI Hassasiyet Motoru</p>
-        </header>
+if(fps>=240)return 10;
 
-        <section className="wx-card">
-          <label className="wx-label" htmlFor="device">Cihaz Modeli</label>
-          <input id="device" className="wx-input" list="device-list"
-            placeholder="Örn. iPhone 13, Redmi Note 13"
-            value={device} onChange={(e) => setDevice(e.target.value)} autoComplete="off" />
-          <datalist id="device-list">
-            {DEVICE_SUGGESTIONS.map((d) => <option key={d} value={d} />)}
-          </datalist>
+if(fps>=200)return 9;
 
-          <label className="wx-label" htmlFor="fps">FPS</label>
-          <div className="wx-fps-group">
-            {[60, 90, 120].map((f) => (
-              <button key={f} type="button"
-                className={`wx-fps-btn ${parseInt(fps, 10) === f ? "active" : ""}`}
-                onClick={() => setFps(String(f))}>{f} FPS</button>
-            ))}
-          </div>
+if(fps>=180)return 8;
 
-          <button className="wx-cta" onClick={generate} disabled={loading}>
-            {loading ? <span className="wx-loading"><span className="wx-spinner" /> AI Hesaplıyor...</span> : "AI Hassasiyet Oluştur"}
-          </button>
+if(fps>=165)return 7;
 
-          {error && <div className="wx-error">{error}</div>}
-        </section>
+if(fps>=144)return 6;
 
-        {result && (
-          <section className="wx-card wx-result">
-            <div className="wx-result-head">
-              <div>
-                <div className="wx-result-title">Yapay Zeka Sonucu</div>
-                <div className="wx-result-meta">{result.device} · {result.fps} FPS</div>
-              </div>
-              <button className="wx-ghost" onClick={copyAll}>Kopyala</button>
-            </div>
-            <Row label="Genel" value={result.sensitivity.general} />
-            <Row label="Kırmızı Nokta" value={result.sensitivity.redDot} />
-            <Row label="2x Dürbün" value={result.sensitivity.scope2x} />
-            <Row label="4x Dürbün" value={result.sensitivity.scope4x} />
-            <Row label="Keskin Nişancı" value={result.sensitivity.sniper} />
-            <Row label="Serbest Bakış" value={result.sensitivity.freeLook} />
-            {result.tip && (
-              <div className="wx-tip">
-                <span className="wx-tip-label">AI İpucu</span>
-                <span>{result.tip}</span>
-              </div>
-            )}
-          </section>
-        )}
+if(fps>=120)return 5;
 
-        <footer className="wx-footer">
-          <span>© wedzXsensi</span>
-          <span className="wx-dot" />
-          <span>Free Fire için optimize edilmiştir</span>
-        </footer>
-      </main>
-    </div>
-  );
+if(fps>=90)return 4;
+
+if(fps>=60)return 3;
+
+return 1;
+
 }
-📁 4. Frontend CSS — /app/frontend/src/App.css
-CSS dosyası uzun olduğu için aşağıdaki komutla görüntüleyebilirsiniz. Tam içeriği /app/frontend/src/App.css dosyasında mevcut. İsterseniz CSS'i de tam olarak buraya yapıştırayım mı?
 
-📁 5. Frontend .env — /app/frontend/.env
-REACT_APP_BACKEND_URL=https://YOUR-DEPLOYED-URL.com
-WDS_SOCKET_PORT=443
-ENABLE_HEALTH_CHECK=false
-📁 6. Backend requirements.txt Önemli Paketler
-fastapi==0.110.1
-uvicorn==0.25.0
-motor==3.3.1
-pydantic>=2.6.4
-python-dotenv>=1.0.1
+function improveValues(values){
+
+const brand=document.getElementById("brand").value;
+
+const fps=parseInt(document.getElementById("fps").value);
+
+const profile=deviceProfiles[brand];
+
+if(!profile){
+
+return values;
+
+}
+
+const fpsBonus=getFPSBonus(fps);
+
+values.general+=Math.floor(profile.power/40)+fpsBonus;
+
+values.red+=Math.floor(profile.drag/35)+fpsBonus;
+
+values.two+=Math.floor(profile.smooth/45);
+
+values.four+=Math.floor(profile.smooth/50);
+
+values.sniper+=Math.floor(profile.power/70);
+
+values.free+=Math.floor(profile.drag/45);
+
+const range=aiRange(
+
+document.getElementById("platform").value
+
+);
+
+values.general=limit(values.general,range.min,range.max);
+
+values.red=limit(values.red,range.min,range.max);
+
+values.two=limit(values.two,range.min,range.max);
+
+values.four=limit(values.four,range.min,range.max);
+
+values.sniper=limit(values.sniper,range.min,range.max);
+
+values.free=limit(values.free,range.min,range.max);
+
+return values;
+
+}
+
+const generateOld=generateAI;
+
+generateAI=function(){
+
+generateOld();
+
+let values={
+
+general:Number(genel.innerHTML),
+
+red:Number(reddot.innerHTML),
+
+two:Number(x2.innerHTML),
+
+four:Number(x4.innerHTML),
+
+sniper:Number(sniper.innerHTML),
+
+free:Number(freelook.innerHTML)
+
+};
+
+values=improveValues(values);
+
+genel.innerHTML=values.general;
+
+reddot.innerHTML=values.red;
+
+x2.innerHTML=values.two;
+
+x4.innerHTML=values.four;
+
+sniper.innerHTML=values.sniper;
+
+freelook.innerHTML=values.free;
+
+showScore(
+
+calculateScore(values)
+
+);
+
+};
+
+function loadingAnimation(){
+
+const btn=document.querySelector("button");
+
+const txt=btn.innerHTML;
+
+btn.innerHTML="AI Analiz Ediliyor...";
+
+btn.disabled=true;
+
+setTimeout(()=>{
+
+btn.innerHTML=txt;
+
+btn.disabled=false;
+
+},1800);
+
+}
+
+document.querySelector("button").onclick=function(){
+
+loadingAnimation();
+
+setTimeout(generateAI,1800);
+
+};
+
+console.log("WedzXsensi V4 AI Loaded");
+
+/* ===========================
+   WedzXsensi V4 - PART 10
+   Final AI Engine
+=========================== */
+
+const aiHistory=[];
+
+function createSeed(){
+
+return Math.floor(Math.random()*999999999);
+
+}
+
+function analyzeDevice(){
+
+const brand=document.getElementById("brand").value;
+
+const model=document.getElementById("model").value.toLowerCase();
+
+const fps=parseInt(document.getElementById("fps").value);
+
+let score=0;
+
+if(model.includes("pro"))score+=8;
+if(model.includes("plus"))score+=5;
+if(model.includes("ultra"))score+=12;
+if(model.includes("gaming"))score+=15;
+if(model.includes("max"))score+=10;
+if(model.includes("gt"))score+=8;
+if(model.includes("neo"))score+=6;
+if(model.includes("turbo"))score+=10;
+
+score+=getFPSBonus(fps);
+
+if(deviceProfiles[brand]){
+
+score+=Math.floor(deviceProfiles[brand].power/10);
+
+}
+
+return score;
+
+}
+
+function dynamicRandom(min,max,seed){
+
+const x=Math.sin(seed++)*10000;
+
+const r=x-Math.floor(x);
+
+return Math.floor(r*(max-min+1))+min;
+
+}
+
+function generateAdvancedValues(){
+
+const platform=document.getElementById("platform").value;
+
+const range=aiRange(platform);
+
+const seed=createSeed()+analyzeDevice();
+
+return{
+
+general:dynamicRandom(range.min,range.max,seed),
+
+red:dynamicRandom(range.min,range.max,seed+3),
+
+two:dynamicRandom(range.min,range.max,seed+8),
+
+four:dynamicRandom(range.min,range.max,seed+12),
+
+sniper:dynamicRandom(range.min,range.max,seed+17),
+
+free:dynamicRandom(range.min,range.max,seed+20)
+
+};
+
+}
+
+function saveAIHistory(values){
+
+aiHistory.push({
+
+time:new Date().toLocaleTimeString(),
+
+device:document.getElementById("model").value,
+
+brand:document.getElementById("brand").value,
+
+values:values
+
+});
+
+if(aiHistory.length>20){
+
+aiHistory.shift();
+
+}
+
+}
+
+function generateAI(){
+
+let values=generateAdvancedValues();
+
+values=applyOptimizer(values);
+
+values=improveValues(values);
+
+const range=aiRange(
+
+document.getElementById("platform").value
+
+);
+
+values.general=limit(values.general,range.min,range.max);
+
+values.red=limit(values.red,range.min,range.max);
+
+values.two=limit(values.two,range.min,range.max);
+
+values.four=limit(values.four,range.min,range.max);
+
+values.sniper=limit(values.sniper,range.min,range.max);
+
+values.free=limit(values.free,range.min,range.max);
+
+genel.innerHTML=values.general;
+reddot.innerHTML=values.red;
+x2.innerHTML=values.two;
+x4.innerHTML=values.four;
+sniper.innerHTML=values.sniper;
+freelook.innerHTML=values.free;
+
+saveAIHistory(values);
+
+showScore(calculateScore(values));
+
+animateResult();
+
+document.getElementById("result").style.display="block";
+
+}
+
+function exportHistory(){
+
+console.table(aiHistory);
+
+}
+
+console.log("WedzXsensi V4 Final AI Loaded");
