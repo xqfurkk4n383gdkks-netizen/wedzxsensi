@@ -1,300 +1,398 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>wedzXsensi W2 PRO</title>
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 
-body{
-background:#000;
-color:#fff;
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:100vh;
-overflow:hidden;
+aim-config-ai
+
+Buy
+
+Loading...
+Hey Furki, Quick input needed :
+Agent will continue working after your reply
+Tabi! İşte tüm kodlar:
+
+📁 1. Backend — /app/backend/server.py
+from fastapi import FastAPI, APIRouter, HTTPException
+from dotenv import load_dotenv
+from starlette.middleware.cors import CORSMiddleware
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+import json
+import re
+import logging
+from pathlib import Path
+from pydantic import BaseModel, Field
+from datetime import datetime, timezone
+import uuid
+
+from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
+mongo_url = os.environ['MONGO_URL']
+client = AsyncIOMotorClient(mongo_url)
+db = client[os.environ['DB_NAME']]
+
+EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+
+app = FastAPI()
+api_router = APIRouter(prefix="/api")
+
+
+class GenerateRequest(BaseModel):
+    device: str = Field(..., min_length=1, max_length=80)
+    fps: int = Field(..., ge=30, le=240)
+
+
+class Sensitivity(BaseModel):
+    general: int
+    redDot: int
+    scope2x: int
+    scope4x: int
+    sniper: int
+    freeLook: int
+
+
+class GenerateResponse(BaseModel):
+    id: str
+    device: str
+    fps: int
+    sensitivity: Sensitivity
+    tip: str
+    created_at: str
+
+
+SYSTEM_MSG = (
+    "You are an expert Free Fire mobile esports coach. "
+    "Given a phone/device model and a target FPS, you produce optimized in-game "
+    "sensitivity values for Free Fire. Tune based on chipset class (flagship vs mid vs entry), "
+    "screen refresh rate, touch responsiveness, and FPS target. Higher FPS allows slightly "
+    "higher values for general/aim, but sniper must stay controlled (typically 70-140). "
+    "Free Look should always be 200. Provide a short pro tip in Turkish. "
+    "Return ONLY a compact JSON object (no markdown, no commentary) with this exact schema: "
+    '{"general": int 100-200, "redDot": int 100-200, "scope2x": int 100-200, '
+    '"scope4x": int 100-200, "sniper": int 60-160, "freeLook": 200, "tip": "Turkish short tip"}. '
+    "All sensitivity ints must be realistic for Free Fire (0-200 range)."
+)
+
+
+def _extract_json(text: str) -> dict:
+    text = text.strip()
+    text = re.sub(r'^```(?:json)?\s*', '', text)
+    text = re.sub(r'\s*```$', '', text)
+    match = re.search(r'\{[\s\S]*\}', text)
+    if not match:
+        raise ValueError("No JSON object found in LLM response")
+    return json.loads(match.group(0))
+
+
+def _clamp(v, lo, hi):
+    try:
+        v = int(v)
+    except (TypeError, ValueError):
+        v = lo
+    return max(lo, min(hi, v))
+
+
+@api_router.get("/")
+async def root():
+    return {"message": "wedzXsensi API running"}
+
+
+@api_router.post("/generate", response_model=GenerateResponse)
+async def generate_sensitivity(payload: GenerateRequest):
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(status_code=500, detail="LLM key not configured")
+
+    session_id = f"wedzxsensi-{uuid.uuid4()}"
+    chat = LlmChat(
+        api_key=EMERGENT_LLM_KEY,
+        session_id=session_id,
+        system_message=SYSTEM_MSG,
+    ).with_model("anthropic", "claude-sonnet-4-5-20250929")
+
+    user_prompt = (
+        f"Cihaz Modeli: {payload.device}\n"
+        f"Hedef FPS: {payload.fps}\n"
+        f"Oyun: Free Fire\n"
+        "Bu cihaz ve FPS için optimum Free Fire hassasiyet değerlerini üret. "
+        "Sadece JSON döndür."
+    )
+
+    try:
+        response_text = await chat.send_message(UserMessage(text=user_prompt))
+    except Exception as e:
+        logger.exception("LLM call failed")
+        raise HTTPException(status_code=502, detail=f"LLM error: {str(e)[:200]}")
+
+    try:
+        data = _extract_json(response_text)
+    except Exception as e:
+        logger.error(f"Failed to parse LLM output: {response_text}")
+        raise HTTPException(status_code=502, detail=f"Parse error: {e}")
+
+    sens = Sensitivity(
+        general=_clamp(data.get("general"), 100, 200),
+        redDot=_clamp(data.get("redDot"), 100, 200),
+        scope2x=_clamp(data.get("scope2x"), 100, 200),
+        scope4x=_clamp(data.get("scope4x"), 100, 200),
+        sniper=_clamp(data.get("sniper"), 60, 160),
+        freeLook=200,
+    )
+    tip = str(data.get("tip", "")).strip()[:280] or "Cihazına göre optimize edildi."
+
+    result = GenerateResponse(
+        id=str(uuid.uuid4()),
+        device=payload.device,
+        fps=payload.fps,
+        sensitivity=sens,
+        tip=tip,
+        created_at=datetime.now(timezone.utc).isoformat(),
+    )
+
+    try:
+        await db.sensitivity_history.insert_one(result.model_dump())
+    except Exception:
+        logger.exception("DB insert failed (non-fatal)")
+
+    return result
+
+
+app.include_router(api_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    client.close()
+📁 2. Backend .env — /app/backend/.env
+MONGO_URL="mongodb://localhost:27017"
+DB_NAME="test_database"
+CORS_ORIGINS="*"
+EMERGENT_LLM_KEY=sk-emergent-7C529Da6899A1Ad3b0
+📁 3. Frontend — /app/frontend/src/App.js
+import { useEffect, useRef, useState } from "react";
+import "@/App.css";
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
+const DEVICE_SUGGESTIONS = [
+  "iPhone 15 Pro Max", "iPhone 13", "Samsung Galaxy S24 Ultra",
+  "Samsung Galaxy A54", "Xiaomi Redmi Note 13", "Xiaomi Poco X6 Pro",
+  "Realme 12 Pro", "Oppo Reno 11", "Tecno Camon 20", "Infinix Hot 40",
+];
+
+function ParticleField() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let raf;
+    let dots = [];
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const count = Math.floor((canvas.width * canvas.height) / 9000);
+      dots = Array.from({ length: count }).map(() => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 0.6,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+        a: Math.random() * 0.6 + 0.25,
+        pulse: Math.random() * Math.PI * 2,
+      }));
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const grad = ctx.createRadialGradient(
+        canvas.width / 2, canvas.height / 2, 50,
+        canvas.width / 2, canvas.height / 2,
+        Math.max(canvas.width, canvas.height) / 1.2
+      );
+      grad.addColorStop(0, "rgba(40,0,0,0.18)");
+      grad.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (const d of dots) {
+        d.x += d.vx; d.y += d.vy; d.pulse += 0.04;
+        if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
+        if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
+
+        const alpha = d.a * (0.6 + 0.4 * Math.sin(d.pulse));
+        const glow = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r * 6);
+        glow.addColorStop(0, `rgba(255,30,30,${alpha})`);
+        glow.addColorStop(1, "rgba(255,0,0,0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r * 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(255,80,80,${Math.min(1, alpha + 0.3)})`;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      raf = requestAnimationFrame(draw);
+    };
+
+    resize();
+    draw();
+    window.addEventListener("resize", resize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="wx-canvas" />;
 }
 
-canvas{
-position:fixed;
-top:0;left:0;
-width:100%;
-height:100%;
-z-index:-1;
+function Row({ label, value, max = 200 }) {
+  const pct = Math.max(0, Math.min(100, (value / max) * 100));
+  return (
+    <div className="wx-row">
+      <div className="wx-row-head">
+        <span className="wx-row-label">{label}</span>
+        <span className="wx-row-value">{value}</span>
+      </div>
+      <div className="wx-bar">
+        <div className="wx-bar-fill" style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
 }
 
-.container{
-width:92%;
-max-width:430px;
-padding:20px;
-border-radius:18px;
-background:rgba(10,10,10,.85);
-border:1px solid rgba(255,0,80,.4);
-box-shadow:0 0 25px rgba(255,0,80,.4);
+export default function App() {
+  const [device, setDevice] = useState("");
+  const [fps, setFps] = useState("60");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
+
+  const generate = async () => {
+    setError("");
+    if (!device.trim()) { setError("Lütfen cihaz modelini girin."); return; }
+    setLoading(true); setResult(null);
+    try {
+      const res = await fetch(`${API}/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device: device.trim(), fps: parseInt(fps, 10) }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setResult(await res.json());
+    } catch (e) {
+      setError("AI çağrısı başarısız. Lütfen tekrar deneyin.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyAll = async () => {
+    if (!result) return;
+    const s = result.sensitivity;
+    const text = `wedzXsensi — Free Fire\nCihaz: ${result.device} | FPS: ${result.fps}\nGenel: ${s.general}\nKırmızı Nokta: ${s.redDot}\n2x Dürbün: ${s.scope2x}\n4x Dürbün: ${s.scope4x}\nKeskin Nişancı: ${s.sniper}\nSerbest Bakış: ${s.freeLook}`;
+    try { await navigator.clipboard.writeText(text); } catch {}
+  };
+
+  return (
+    <div className="wx-app">
+      <ParticleField />
+      <main className="wx-shell">
+        <header className="wx-header">
+          <div className="wx-brand-mark" />
+          <h1 className="wx-brand">wedz<span className="wx-accent">X</span>sensi</h1>
+          <p className="wx-tag">Free Fire · AI Hassasiyet Motoru</p>
+        </header>
+
+        <section className="wx-card">
+          <label className="wx-label" htmlFor="device">Cihaz Modeli</label>
+          <input id="device" className="wx-input" list="device-list"
+            placeholder="Örn. iPhone 13, Redmi Note 13"
+            value={device} onChange={(e) => setDevice(e.target.value)} autoComplete="off" />
+          <datalist id="device-list">
+            {DEVICE_SUGGESTIONS.map((d) => <option key={d} value={d} />)}
+          </datalist>
+
+          <label className="wx-label" htmlFor="fps">FPS</label>
+          <div className="wx-fps-group">
+            {[60, 90, 120].map((f) => (
+              <button key={f} type="button"
+                className={`wx-fps-btn ${parseInt(fps, 10) === f ? "active" : ""}`}
+                onClick={() => setFps(String(f))}>{f} FPS</button>
+            ))}
+          </div>
+
+          <button className="wx-cta" onClick={generate} disabled={loading}>
+            {loading ? <span className="wx-loading"><span className="wx-spinner" /> AI Hesaplıyor...</span> : "AI Hassasiyet Oluştur"}
+          </button>
+
+          {error && <div className="wx-error">{error}</div>}
+        </section>
+
+        {result && (
+          <section className="wx-card wx-result">
+            <div className="wx-result-head">
+              <div>
+                <div className="wx-result-title">Yapay Zeka Sonucu</div>
+                <div className="wx-result-meta">{result.device} · {result.fps} FPS</div>
+              </div>
+              <button className="wx-ghost" onClick={copyAll}>Kopyala</button>
+            </div>
+            <Row label="Genel" value={result.sensitivity.general} />
+            <Row label="Kırmızı Nokta" value={result.sensitivity.redDot} />
+            <Row label="2x Dürbün" value={result.sensitivity.scope2x} />
+            <Row label="4x Dürbün" value={result.sensitivity.scope4x} />
+            <Row label="Keskin Nişancı" value={result.sensitivity.sniper} />
+            <Row label="Serbest Bakış" value={result.sensitivity.freeLook} />
+            {result.tip && (
+              <div className="wx-tip">
+                <span className="wx-tip-label">AI İpucu</span>
+                <span>{result.tip}</span>
+              </div>
+            )}
+          </section>
+        )}
+
+        <footer className="wx-footer">
+          <span>© wedzXsensi</span>
+          <span className="wx-dot" />
+          <span>Free Fire için optimize edilmiştir</span>
+        </footer>
+      </main>
+    </div>
+  );
 }
+📁 4. Frontend CSS — /app/frontend/src/App.css
+CSS dosyası uzun olduğu için aşağıdaki komutla görüntüleyebilirsiniz. Tam içeriği /app/frontend/src/App.css dosyasında mevcut. İsterseniz CSS'i de tam olarak buraya yapıştırayım mı?
 
-.logo{
-text-align:center;
-font-size:28px;
-font-weight:900;
-margin-bottom:10px;
-color:#ff2e6a;
-text-shadow:0 0 15px #ff0044;
-}
-
-.btn{
-width:100%;
-padding:12px;
-margin:5px 0;
-border:none;
-border-radius:12px;
-background:#111;
-color:#fff;
-font-weight:bold;
-cursor:pointer;
-border:1px solid rgba(255,255,255,.1);
-}
-
-.btn:hover{
-box-shadow:0 0 15px #ff0044;
-transform:scale(1.02);
-}
-
-.hidden{display:none;}
-
-.item{
-display:flex;
-justify-content:space-between;
-padding:10px;
-margin:6px 0;
-background:#111;
-border-radius:10px;
-border:1px solid rgba(255,255,255,.1);
-}
-
-.val{
-color:#ff4d6d;
-font-weight:bold;
-}
-
-input,select{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:none;
-margin:5px 0;
-background:#111;
-color:#fff;
-outline:none;
-}
-</style>
-</head>
-
-<body>
-
-<canvas id="bg"></canvas>
-
-<div class="container">
-
-<div class="logo">wedzXsensi W2 PRO</div>
-
-<!-- DEVICE -->
-<div id="step1">
-<button class="btn" onclick="setDevice('iPhone')">iPhone</button>
-<button class="btn" onclick="setDevice('Android')">Android</button>
-<button class="btn" onclick="setDevice('PC')">PC</button>
-</div>
-
-<!-- PHONE MODEL -->
-<div id="step2" class="hidden">
-<input id="phoneModel" placeholder="Telefon modeli yaz">
-<button class="btn" onclick="nextStep()">Devam</button>
-</div>
-
-<!-- PC BRAND -->
-<div id="step3_pc" class="hidden">
-<select id="pcBrand">
-<option>Asus</option>
-<option>MSI</option>
-<option>Acer</option>
-<option>HP</option>
-<option>Dell</option>
-<option>Lenovo</option>
-</select>
-<button class="btn" onclick="nextStepPC()">Devam</button>
-</div>
-
-<!-- FINGER -->
-<div id="step4" class="hidden">
-<button class="btn" onclick="setFinger(2)">2 Parmak</button>
-<button class="btn" onclick="setFinger(3)">3 Parmak</button>
-<button class="btn" onclick="setFinger(4)">4 Parmak</button>
-</div>
-
-<!-- GENERATE -->
-<div id="step5" class="hidden">
-<button class="btn" onclick="generate()">HASSASİYET OLUŞTUR</button>
-</div>
-
-<!-- RESULT -->
-<div id="result" class="hidden">
-
-<div class="item"><span>Model / Marka</span><span id="model" class="val"></span></div>
-<div class="item"><span>Genel</span><span id="gen" class="val"></span></div>
-<div class="item"><span>Kırmızı</span><span id="red" class="val"></span></div>
-<div class="item"><span>2x</span><span id="x2" class="val"></span></div>
-<div class="item"><span>4x</span><span id="x4" class="val"></span></div>
-<div class="item"><span>Sniper</span><span id="sniper" class="val"></span></div>
-<div class="item"><span>Serbest Bakış</span><span id="free" class="val"></span></div>
-<div class="item"><span>DPI</span><span id="dpi" class="val"></span></div>
-
-<button class="btn" onclick="generate()">Yeniden Oluştur</button>
-<button class="btn" onclick="copy()">Kopyala</button>
-
-</div>
-
-</div>
-
-<script>
-
-let device="",phoneModel="",pcBrand="",finger=2;
-
-function setDevice(v){
-device=v;
-document.getElementById("step1").classList.add("hidden");
-
-if(v==="PC"){
-document.getElementById("step3_pc").classList.remove("hidden");
-}else{
-document.getElementById("step2").classList.remove("hidden");
-}
-}
-
-function nextStep(){
-phoneModel=document.getElementById("phoneModel").value || "Unknown";
-document.getElementById("step2").classList.add("hidden");
-document.getElementById("step4").classList.remove("hidden");
-}
-
-function nextStepPC(){
-pcBrand=document.getElementById("pcBrand").value;
-document.getElementById("step3_pc").classList.add("hidden");
-document.getElementById("step4").classList.remove("hidden");
-}
-
-function setFinger(v){
-finger=v;
-document.getElementById("step4").classList.add("hidden");
-document.getElementById("step5").classList.remove("hidden");
-}
-
-function rand(min,max){
-return Math.floor(Math.random()*(max-min+1))+min;
-}
-
-function generate(){
-
-document.getElementById("result").classList.remove("hidden");
-
-if(device==="PC"){
-model.innerText=pcBrand;
-gen.innerText=rand(30,70);
-red.innerText=rand(35,75);
-x2.innerText=rand(25,65);
-x4.innerText=rand(20,60);
-sniper.innerText=rand(40,80);
-free.innerText=rand(40,85);
-dpi.innerText=rand(400,1200);
-}
-
-else{
-model.innerText=phoneModel;
-
-if(device==="iPhone"){
-gen.innerText=rand(55,100);
-red.innerText=rand(50,100);
-x2.innerText=rand(50,95);
-x4.innerText=rand(50,90);
-sniper.innerText=rand(45,85);
-free.innerText=rand(50,100);
-dpi.innerText=rand(70,120);
-}
-
-else{
-gen.innerText=rand(170,200);
-red.innerText=rand(165,200);
-x2.innerText=rand(160,195);
-x4.innerText=rand(150,190);
-sniper.innerText=rand(140,185);
-free.innerText=rand(170,200);
-dpi.innerText=rand(500,800);
-}
-}
-}
-
-function copy(){
-
-let text=
-"wedzXsensi W2 PRO\n"+
-"Model: "+model.innerText+"\n"+
-"Genel: "+gen.innerText+"\n"+
-"Kırmızı: "+red.innerText+"\n"+
-"2x: "+x2.innerText+"\n"+
-"4x: "+x4.innerText+"\n"+
-"Sniper: "+sniper.innerText+"\n"+
-"Serbest Bakış: "+free.innerText+"\n"+
-"DPI: "+dpi.innerText;
-
-navigator.clipboard.writeText(text);
-alert("Kopyalandı!");
-}
-
-/* NEON BACKGROUND */
-const c=document.getElementById("bg");
-const x=c.getContext("2d");
-
-c.width=innerWidth;
-c.height=innerHeight;
-
-let dots=[];
-for(let i=0;i<300;i++){
-dots.push({
-x:Math.random()*c.width,
-y:Math.random()*c.height,
-vx:(Math.random()-.5)*1.3,
-vy:(Math.random()-.5)*1.3,
-r:Math.random()*2,
-color:Math.random()>0.5?"#ff0055":"#00aaff"
-});
-}
-
-function anim(){
-x.fillStyle="#000";
-x.fillRect(0,0,c.width,c.height);
-
-for(let d of dots){
-d.x+=d.vx;
-d.y+=d.vy;
-
-if(d.x<0||d.x>c.width)d.vx*=-1;
-if(d.y<0||d.y>c.height)d.vy*=-1;
-
-x.beginPath();
-x.arc(d.x,d.y,d.r,0,Math.PI*2);
-x.fillStyle=d.color;
-x.shadowBlur=15;
-x.shadowColor=d.color;
-x.fill();
-}
-
-requestAnimationFrame(anim);
-}
-anim();
-
-</script>
-
-</body>
-</html>
+📁 5. Frontend .env — /app/frontend/.env
+REACT_APP_BACKEND_URL=https://YOUR-DEPLOYED-URL.com
+WDS_SOCKET_PORT=443
+ENABLE_HEALTH_CHECK=false
+📁 6. Backend requirements.txt Önemli Paketler
+fastapi==0.110.1
+uvicorn==0.25.0
+motor==3.3.1
+pydantic>=2.6.4
+python-dotenv>=1.0.1
